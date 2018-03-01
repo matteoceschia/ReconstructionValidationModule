@@ -65,7 +65,7 @@ void SensitivityModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("reco.positive_track_count",&sensitivity_.positive_track_count_);
   tree_->Branch("reco.associated_track_count",&sensitivity_.associated_track_count_);
   tree_->Branch("reco.small_cluster_count",&sensitivity_.small_cluster_count_);
-  tree_->Branch("reco.geiger_hit_count",&sensitivity_.delayed_hit_count_);
+  tree_->Branch("reco.geiger_hit_count",&sensitivity_.geiger_hit_count_);
   tree_->Branch("reco.all_track_hit_counts",&sensitivity_.all_track_hit_counts_);
   tree_->Branch("reco.delayed_hit_count",&sensitivity_.delayed_hit_count_);
 
@@ -324,6 +324,7 @@ SensitivityModule::process(datatools::things& workItem) {
           if (energy>=lowEnergyLimit)++nCalHitsOverLowLimit;
         }
       }
+    
       timeDelay=latestCaloHit-earliestCaloHit;
       caloHitCount=nCalHitsOverLowLimit;
       if (nCalorimeterHits==2 && nCalHitsOverHighLimit>=1 && nCalHitsOverLowLimit==2)
@@ -334,15 +335,16 @@ SensitivityModule::process(datatools::things& workItem) {
       {
         passesTwoPlusCalos=true;
       }
+      // Count all the tracker (Geiger) hits
       if (calData.has_calibrated_tracker_hits())
       {
-        // Count the delayed tracker hits by looping all the tracker hits and checking if they are delayed
         const snemo::datamodel::calibrated_data::tracker_hit_collection_type& trackerHits = calData.calibrated_tracker_hits();
         for (snemo::datamodel::calibrated_data::tracker_hit_collection_type::const_iterator   iHit = trackerHits.begin(); iHit != trackerHits.end(); ++iHit) {
+          geigerHitCount++;
           const snemo::datamodel::calibrated_tracker_hit& hit = iHit->get();
+          // Check if the hit is delayed and if so count it
           if (hit.is_delayed()) delayedHitCount++;
         }
-
       }
     }
   catch (std::logic_error& e) {
@@ -772,6 +774,7 @@ SensitivityModule::process(datatools::things& workItem) {
 
   // Debug information
   sensitivity_.calorimeter_hit_count_=caloHitCount;
+  sensitivity_.geiger_hit_count_=geigerHitCount;
   sensitivity_.small_cluster_count_=smallClusterCount;
   sensitivity_.cluster_count_=clusterCount;
   sensitivity_.highest_gamma_energy_=  highestGammaEnergy;

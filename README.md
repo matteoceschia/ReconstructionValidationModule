@@ -85,6 +85,8 @@ filename_out : string[1] = "my_filename.root"
 
 **reco.calorimeter_hit_count** : Number of calorimeter hits
 
+**reco.geiger_hit_count** : Number of tracker hits (Geiger mode)
+
 **reco.cluster_count** : Number of clusters with 3 or more hits
 
 **reco.track_count** : Number of tracks in the tracker

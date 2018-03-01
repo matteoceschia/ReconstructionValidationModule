@@ -78,7 +78,7 @@ void SensitivityModule::initialize(const datatools::properties& myConfig,
   
   // Energies and calo times
   tree_->Branch("reco.total_calorimeter_energy",&sensitivity_.total_calorimeter_energy_);
-  tree_->Branch("reco.unassociated_calorimeter_energy",&sensitivity_.total_calorimeter_energy_);
+  tree_->Branch("reco.unassociated_calorimeter_energy",&sensitivity_.unassociated_calorimeter_energy_);
   tree_->Branch("reco.higher_electron_energy",&sensitivity_.higher_electron_energy_);
   tree_->Branch("reco.lower_electron_energy",&sensitivity_.lower_electron_energy_);
   tree_->Branch("reco.electron_energies",&sensitivity_.electron_energies_);
@@ -244,8 +244,7 @@ SensitivityModule::process(datatools::things& workItem) {
   int negativeTrackCount=0;
   int positiveTrackCount=0;
   std::vector<int> allTrackHitCounts;
-  double associatedCaloEnergy=0.;
-
+  
   std::vector<snemo::datamodel::particle_track> gammaCandidates;
   std::vector<snemo::datamodel::particle_track> electronCandidates;
   std::vector<snemo::datamodel::particle_track> alphaCandidates;
@@ -396,10 +395,6 @@ SensitivityModule::process(datatools::things& workItem) {
         TrackDetails trackDetails(geometry_manager_, track);
         
         // Basic debug info for any track
-        if (track.has_associated_calorimeter_hits())
-        {
-          associatedCaloEnergy += trackDetails.GetEnergy();
-        }
         if (track.get_charge()==snemo::datamodel::particle_track::NEGATIVE)
         {
           negativeTrackCount++;
@@ -629,6 +624,15 @@ SensitivityModule::process(datatools::things& workItem) {
   sensitivity_.higher_electron_energy_=higherElectronEnergy;
   sensitivity_.total_calorimeter_energy_ = totalCalorimeterEnergy;
 
+  // Unassociated calorimeter energy is the total energy of the gammas
+  double unassociatedEnergy=0.;
+  for (int i=0; i<gammaEnergies.size();i++)
+  {
+    unassociatedEnergy += gammaEnergies.at(i);
+  }
+  
+  sensitivity_.unassociated_calorimeter_energy_ = unassociatedEnergy;
+  
   // "First" track is the higher energy one
   //uint highEnergyIndex =(calorimeterEnergy[0]>calorimeterEnergy[1] ? 0:1);
   uint lowEnergyIndex = 1-highEnergyIndex;

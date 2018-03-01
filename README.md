@@ -190,7 +190,7 @@ filename_out : string[1] = "my_filename.root"
 **reco.foil_projected_internal_probability;
 reco.foil_projected_external_probability** : As internal and external probability, if each track’s length were extended to project the track linearly back to the foil
 
-**reco.calo_hit_time_separation** : If 2 calorimeter hits  - time delay in nanoseconds between the hits. Used in the past as a crude proxy for internal/external probability.
+**reco.calo_hit_time_separation** : If 2 or more calorimeter hits  - time delay in nanoseconds between the earliest and latest hits.
 
 ## Output tuple structure - alpha finding
 

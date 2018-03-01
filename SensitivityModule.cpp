@@ -244,7 +244,7 @@ SensitivityModule::process(datatools::things& workItem) {
   int negativeTrackCount=0;
   int positiveTrackCount=0;
   std::vector<int> allTrackHitCounts;
-  double unassociatedCaloEnergy=0.;
+  double associatedCaloEnergy=0.;
 
   std::vector<snemo::datamodel::particle_track> gammaCandidates;
   std::vector<snemo::datamodel::particle_track> electronCandidates;
@@ -394,6 +394,20 @@ SensitivityModule::process(datatools::things& workItem) {
 
         snemo::datamodel::particle_track track=trackData.get_particle(iParticle);
         TrackDetails trackDetails(geometry_manager_, track);
+        
+        // Basic debug info for any track
+        if (track.has_associated_calorimeter_hits())
+        {
+          associatedCaloEnergy += trackDetails.GetEnergy();
+        }
+        if (track.get_charge()==snemo::datamodel::particle_track::NEGATIVE)
+        {
+          negativeTrackCount++;
+        }
+        if (track.get_charge()==snemo::datamodel::particle_track::POSITIVE)
+        {
+          positiveTrackCount++;
+        }
         
         // Populate info for gammas
         if (trackDetails.IsGamma())
@@ -760,6 +774,8 @@ SensitivityModule::process(datatools::things& workItem) {
   sensitivity_.edgemost_vertex_=edgemostVertex;
   sensitivity_.number_of_gammas_=gammaCandidates.size();
   sensitivity_.track_count_=trackCount;
+  sensitivity_.negative_track_count_=negativeTrackCount;
+  sensitivity_.positive_track_count_=positiveTrackCount;
   sensitivity_.associated_track_count_=electronCandidates.size();
   sensitivity_.alpha_count_=alphaCandidates.size();
   sensitivity_.delayed_cluster_hit_count_=delayedClusterHitCount;

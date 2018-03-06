@@ -42,6 +42,7 @@ typedef struct SensitivityEventStorage{
   int number_of_electrons_;
   int number_of_gammas_;
   double total_calorimeter_energy_;
+  double calo_hit_time_separation_; // Between the first and last calo hits
 
   double lower_electron_energy_; // MeV
   double higher_electron_energy_;// MeVir
@@ -111,7 +112,6 @@ typedef struct SensitivityEventStorage{
   std::vector<bool> electrons_from_foil_; // For each electron, is the vertex on the foil?
   
   // For calculating probability of an  internal/external topology
-  double calo_hit_time_separation_;
   bool topology_2e_; // Does it have a 2-electron-like topology?
   double internal_probability_;
   double external_probability_;
@@ -142,7 +142,13 @@ typedef struct SensitivityEventStorage{
   int calorimeter_hit_count_; // How many calorimeter hits over threshold?
   int cluster_count_; // How many clusters with 3 or more hits?
   int track_count_; // How many reconstructed tracks?
+  int negative_track_count_; // How many reconstructed tracks with negative curvature?
+  int positive_track_count_; // How many reconstructed tracks with positive curvature?
   int associated_track_count_; // How many reconstructed tracks with an associated calorimeter?
+  int geiger_hit_count_; // How many reconstructed tracker hits?
+  std::vector<int> all_track_hit_counts_; // Vector of how many hits for ALL tracks (delayed or not)
+  double unassociated_calorimeter_energy_; // Summed calorimeter energy not associated to any track (in MeV)
+  
   int delayed_hit_count_; // Number of delated tracker hits, regardless of whether they are tracked as alphas
   int alpha_count_; // How many reconstructed alphas (formed from one or more delayed hits)?
   int foil_alpha_count_; //How many reconstructed alphas (ie delayed hits) that we think have a vertex on the foil?
@@ -153,6 +159,7 @@ typedef struct SensitivityEventStorage{
   double alpha_track_length_; // Length of the alpha track in mm, different metrics for different numbers of delayed hits
   double proj_track_length_alpha_; // Length of the alpha track when projected back to the foil in mm
   bool alpha_crosses_foil_; // True if the alpha track crosses the foil (bug in alpha finder)
+  
   
   // Truth info - particle energies in MeV and primary vertex position
   double true_highest_primary_energy_;

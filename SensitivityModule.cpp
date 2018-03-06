@@ -61,9 +61,14 @@ void SensitivityModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("reco.calorimeter_hit_count",&sensitivity_.calorimeter_hit_count_);
   tree_->Branch("reco.cluster_count",&sensitivity_.cluster_count_);
   tree_->Branch("reco.track_count",&sensitivity_.track_count_);
+  tree_->Branch("reco.negative_track_count",&sensitivity_.negative_track_count_);
+  tree_->Branch("reco.positive_track_count",&sensitivity_.positive_track_count_);
   tree_->Branch("reco.associated_track_count",&sensitivity_.associated_track_count_);
   tree_->Branch("reco.small_cluster_count",&sensitivity_.small_cluster_count_);
+  tree_->Branch("reco.geiger_hit_count",&sensitivity_.geiger_hit_count_);
+  tree_->Branch("reco.all_track_hit_counts",&sensitivity_.all_track_hit_counts_);
   tree_->Branch("reco.delayed_hit_count",&sensitivity_.delayed_hit_count_);
+
   
   // Numbers of reconstructed particles
   tree_->Branch("reco.number_of_electrons",&sensitivity_.number_of_electrons_);
@@ -71,8 +76,9 @@ void SensitivityModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("reco.number_of_gammas",&sensitivity_.number_of_gammas_);
   tree_->Branch("reco.alpha_count",&sensitivity_.alpha_count_);
   
-  // Energies
+  // Energies and calo times
   tree_->Branch("reco.total_calorimeter_energy",&sensitivity_.total_calorimeter_energy_);
+  tree_->Branch("reco.unassociated_calorimeter_energy",&sensitivity_.unassociated_calorimeter_energy_);
   tree_->Branch("reco.higher_electron_energy",&sensitivity_.higher_electron_energy_);
   tree_->Branch("reco.lower_electron_energy",&sensitivity_.lower_electron_energy_);
   tree_->Branch("reco.electron_energies",&sensitivity_.electron_energies_);
@@ -232,7 +238,13 @@ SensitivityModule::process(datatools::things& workItem) {
   double highestGammaEnergy=0;
   double edgemostVertex=0;
   double distanceBetweenFoilGeigerCell=30.838;
-
+  double earliestCaloHit=-1.;
+  double latestCaloHit=-1.;
+  int geigerHitCount=0;
+  int negativeTrackCount=0;
+  int positiveTrackCount=0;
+  std::vector<int> allTrackHitCounts;
+  
   std::vector<snemo::datamodel::particle_track> gammaCandidates;
   std::vector<snemo::datamodel::particle_track> electronCandidates;
   std::vector<snemo::datamodel::particle_track> alphaCandidates;
@@ -287,7 +299,8 @@ SensitivityModule::process(datatools::things& workItem) {
     int nCalorimeterHits=0;
     int nCalHitsOverHighLimit=0;
     int nCalHitsOverLowLimit=0;
-
+    
+    
     if (calData.has_calibrated_calorimeter_hits())
       {
         const snemo::datamodel::calibrated_data::calorimeter_hit_collection_type & calHits=calData.calibrated_calorimeter_hits();
@@ -296,39 +309,42 @@ SensitivityModule::process(datatools::things& workItem) {
           double energy=calHit.get_energy() ;
           totalCalorimeterEnergy += energy;
 
-          if (timeDelay<0)//first hit
+          double hitTime=calHit.get_time();
+          if (hitTime > latestCaloHit)
           {
-            timeDelay=calHit.get_time();
+            latestCaloHit = hitTime;
           }
-          else
+          if (hitTime < earliestCaloHit || earliestCaloHit <= 0 )
           {
-            timeDelay -=calHit.get_time(); // Get time between the first two hits: if there are more than two hits we will reject the event anyway
+            earliestCaloHit=hitTime;
           }
+          
           ++nCalorimeterHits;
           if (energy>=highEnergyLimit)++nCalHitsOverHighLimit;
           if (energy>=lowEnergyLimit)++nCalHitsOverLowLimit;
-
         }
       }
     
+      timeDelay=latestCaloHit-earliestCaloHit;
       caloHitCount=nCalHitsOverLowLimit;
       if (nCalorimeterHits==2 && nCalHitsOverHighLimit>=1 && nCalHitsOverLowLimit==2)
         {
-          passesTwoCalorimeters=true;
+          passesTwoCalorimeters=true; // ### should we allow hits below threshold?
         }
       if (nCalHitsOverHighLimit>=1 && nCalHitsOverLowLimit>=2)
       {
         passesTwoPlusCalos=true;
       }
+      // Count all the tracker (Geiger) hits
       if (calData.has_calibrated_tracker_hits())
       {
-        // Count the delayed tracker hits by looping all the tracker hits and checking if they are delayed
         const snemo::datamodel::calibrated_data::tracker_hit_collection_type& trackerHits = calData.calibrated_tracker_hits();
         for (snemo::datamodel::calibrated_data::tracker_hit_collection_type::const_iterator   iHit = trackerHits.begin(); iHit != trackerHits.end(); ++iHit) {
+          geigerHitCount++;
           const snemo::datamodel::calibrated_tracker_hit& hit = iHit->get();
+          // Check if the hit is delayed and if so count it
           if (hit.is_delayed()) delayedHitCount++;
         }
-
       }
     }
   catch (std::logic_error& e) {
@@ -379,6 +395,16 @@ SensitivityModule::process(datatools::things& workItem) {
 
         snemo::datamodel::particle_track track=trackData.get_particle(iParticle);
         TrackDetails trackDetails(geometry_manager_, track);
+        
+        // Basic debug info for any track
+        if (track.get_charge()==snemo::datamodel::particle_track::NEGATIVE)
+        {
+          negativeTrackCount++;
+        }
+        if (track.get_charge()==snemo::datamodel::particle_track::POSITIVE)
+        {
+          positiveTrackCount++;
+        }
         
         // Populate info for gammas
         if (trackDetails.IsGamma())
@@ -600,6 +626,15 @@ SensitivityModule::process(datatools::things& workItem) {
   sensitivity_.higher_electron_energy_=higherElectronEnergy;
   sensitivity_.total_calorimeter_energy_ = totalCalorimeterEnergy;
 
+  // Unassociated calorimeter energy is the total energy of the gammas
+  double unassociatedEnergy=0.;
+  for (int i=0; i<gammaEnergies.size();i++)
+  {
+    unassociatedEnergy += gammaEnergies.at(i);
+  }
+  
+  sensitivity_.unassociated_calorimeter_energy_ = unassociatedEnergy;
+  
   // "First" track is the higher energy one
   //uint highEnergyIndex =(calorimeterEnergy[0]>calorimeterEnergy[1] ? 0:1);
   uint lowEnergyIndex = 1-highEnergyIndex;
@@ -739,12 +774,15 @@ SensitivityModule::process(datatools::things& workItem) {
 
   // Debug information
   sensitivity_.calorimeter_hit_count_=caloHitCount;
+  sensitivity_.geiger_hit_count_=geigerHitCount;
   sensitivity_.small_cluster_count_=smallClusterCount;
   sensitivity_.cluster_count_=clusterCount;
   sensitivity_.highest_gamma_energy_=  highestGammaEnergy;
   sensitivity_.edgemost_vertex_=edgemostVertex;
   sensitivity_.number_of_gammas_=gammaCandidates.size();
   sensitivity_.track_count_=trackCount;
+  sensitivity_.negative_track_count_=negativeTrackCount;
+  sensitivity_.positive_track_count_=positiveTrackCount;
   sensitivity_.associated_track_count_=electronCandidates.size();
   sensitivity_.alpha_count_=alphaCandidates.size();
   sensitivity_.delayed_cluster_hit_count_=delayedClusterHitCount;

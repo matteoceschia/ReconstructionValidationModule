@@ -85,9 +85,15 @@ filename_out : string[1] = "my_filename.root"
 
 **reco.calorimeter_hit_count** : Number of calorimeter hits
 
+**reco.geiger_hit_count** : Number of tracker hits (Geiger mode)
+
 **reco.cluster_count** : Number of clusters with 3 or more hits
 
 **reco.track_count** : Number of tracks in the tracker
+
+**reco.negative_track_count** : Number of tracks in the tracker that have been identified to have a negative charge curvature
+
+**reco.positive_track_count** : Number of tracks in the tracker that have been identified to have a positive charge curvature
 
 **reco.associated_track_count** : Number of electron candidates
 
@@ -110,15 +116,17 @@ filename_out : string[1] = "my_filename.root"
 
 **reco.total_calorimeter_energy** : Summed energy of all reconstructed calorimeter hits (CD bank)
 
+**reco.unassociated_calorimeter_energy** : Summed energy of all reconstructed calorimeter hits that are not associated to tracks  (corresponds to the sum of the gamma energies)
+
 **reco.higher_electron_energy** : Energy of the highest-energy electron candidate, summed over all associated calorimeter hits (at the moment I don’t think more than 1 hit is allowed, but that could change in future). 0 if no electron candidates. Corresponds to ** reco.electron_energies[0].
 
 **reco.lower_electron_energy** : Energy of the second-highest-energy electron candidate, summed over all associated calorimeter hits (at the moment I don’t think more than 1 hit is allowed, but that could change in future). 0 if less than 2 electron candidates. Corresponds to reco.electron_energies[1].
 
 **reco.electron_energies** : Vector of all electron-candidate energies. In descending order of energy.
 
-**reco.gamma_energies** : Vector of all electron-candidate energies. In descending order of energy.
+**reco.gamma_energies** : Vector of all gamma-candidate energies. In descending order of energy.
 
-**reco.highest_gamma_energy** : Highest energy gamma, may come from more than 1 calorimeter hit as specified by gamma tracko- clustering
+**reco.highest_gamma_energy** : Highest energy gamma, may come from more than 1 calorimeter hit as specified by gamma tracko-clustering
 
 ## Output tuple structure - Tracks and vertices
 
@@ -190,7 +198,7 @@ filename_out : string[1] = "my_filename.root"
 **reco.foil_projected_internal_probability;
 reco.foil_projected_external_probability** : As internal and external probability, if each track’s length were extended to project the track linearly back to the foil
 
-**reco.calo_hit_time_separation** : If 2 calorimeter hits  - time delay in nanoseconds between the hits. Used in the past as a crude proxy for internal/external probability.
+**reco.calo_hit_time_separation** : If 2 or more calorimeter hits  - time delay in nanoseconds between the earliest and latest hits.
 
 ## Output tuple structure - alpha finding
 

@@ -47,16 +47,7 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   hfile_->cd();
   tree_ = new TTree("Validation","Validation");
   tree_->SetDirectory(hfile_);
-  
-  // Reconstructed quantities
-  
-  // Standard cuts
-  tree_->Branch("reco.passes_two_calorimeters",&Validation_.passes_two_calorimeters_);
-  tree_->Branch("reco.passes_two_plus_calos",&Validation_.passes_two_plus_calos_);
-  tree_->Branch("reco.passes_two_clusters",&Validation_.passes_two_clusters_);
-  tree_->Branch("reco.passes_two_tracks",&Validation_.passes_two_tracks_);
-  tree_->Branch("reco.passes_associated_calorimeters",&Validation_.passes_associated_calorimeters_);
-  
+ 
   // Some basic counts
   tree_->Branch("reco.calorimeter_hit_count",&Validation_.calorimeter_hit_count_);
   tree_->Branch("reco.cluster_count",&Validation_.cluster_count_);
@@ -64,120 +55,13 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("reco.negative_track_count",&Validation_.negative_track_count_);
   tree_->Branch("reco.positive_track_count",&Validation_.positive_track_count_);
   tree_->Branch("reco.associated_track_count",&Validation_.associated_track_count_);
-  tree_->Branch("reco.small_cluster_count",&Validation_.small_cluster_count_);
   tree_->Branch("reco.geiger_hit_count",&Validation_.geiger_hit_count_);
   tree_->Branch("reco.all_track_hit_counts",&Validation_.all_track_hit_counts_);
-  tree_->Branch("reco.delayed_hit_count",&Validation_.delayed_hit_count_);
-
-  
-  // Numbers of reconstructed particles
-  tree_->Branch("reco.number_of_electrons",&Validation_.number_of_electrons_);
-  tree_->Branch("reco.electron_charges",&Validation_.electron_charges_);
-  tree_->Branch("reco.number_of_gammas",&Validation_.number_of_gammas_);
-  tree_->Branch("reco.alpha_count",&Validation_.alpha_count_);
   
   // Energies and calo times
   tree_->Branch("reco.total_calorimeter_energy",&Validation_.total_calorimeter_energy_);
   tree_->Branch("reco.unassociated_calorimeter_energy",&Validation_.unassociated_calorimeter_energy_);
-  tree_->Branch("reco.higher_electron_energy",&Validation_.higher_electron_energy_);
-  tree_->Branch("reco.lower_electron_energy",&Validation_.lower_electron_energy_);
-  tree_->Branch("reco.electron_energies",&Validation_.electron_energies_);
-  tree_->Branch("reco.gamma_energies",&Validation_.gamma_energies_);
-  tree_->Branch("reco.highest_gamma_energy",&Validation_.highest_gamma_energy_);
-  
-  // Electron track lengths
-  tree_->Branch("reco.electron_track_lengths",&Validation_.electron_track_lengths_);
-  tree_->Branch("reco.electron_hit_counts",&Validation_.electron_hit_counts_);
-  
-  // Vertex positions (max 2 tracks)
-  tree_->Branch("reco.first_vertex_x",&Validation_.first_vertex_x_);
-  tree_->Branch("reco.first_vertex_y",&Validation_.first_vertex_y_);
-  tree_->Branch("reco.first_vertex_z",&Validation_.first_vertex_z_);
-  tree_->Branch("reco.second_vertex_x",&Validation_.second_vertex_x_);
-  tree_->Branch("reco.second_vertex_y",&Validation_.second_vertex_y_);
-  tree_->Branch("reco.second_vertex_z",&Validation_.second_vertex_z_);
-  tree_->Branch("reco.first_proj_vertex_y",&Validation_.first_proj_vertex_y_);
-  tree_->Branch("reco.first_proj_vertex_z",&Validation_.first_proj_vertex_z_);
-  tree_->Branch("reco.second_proj_vertex_y",&Validation_.second_proj_vertex_y_);
-  tree_->Branch("reco.second_proj_vertex_z",&Validation_.second_proj_vertex_z_);
-  tree_->Branch("reco.vertex_separation",&Validation_.vertex_separation_);
-  tree_->Branch("reco.foil_projection_separation",&Validation_.foil_projection_separation_);
-  tree_->Branch("reco.projection_distance_xy",&Validation_.projection_distance_xy_);
-  tree_->Branch("reco.vertices_on_foil",&Validation_.vertices_on_foil_);
-  tree_->Branch("reco.electrons_from_foil",&Validation_.electrons_from_foil_);
-  tree_->Branch("reco.electron_vertex_x",&Validation_.electron_vertex_x_); // vector
-  tree_->Branch("reco.electron_vertex_y",&Validation_.electron_vertex_y_); // vector
-  tree_->Branch("reco.electron_vertex_z",&Validation_.electron_vertex_z_); // vector
-  tree_->Branch("reco.electron_dir_x",&Validation_.electron_dir_x_); // vector
-  tree_->Branch("reco.electron_dir_y",&Validation_.electron_dir_y_); // vector
-  tree_->Branch("reco.electron_dir_z",&Validation_.electron_dir_z_); // vector
-  tree_->Branch("reco.electron_proj_vertex_x",&Validation_.electron_proj_vertex_x_); // vector
-  tree_->Branch("reco.electron_proj_vertex_y",&Validation_.electron_proj_vertex_y_); // vector
-  tree_->Branch("reco.electron_proj_vertex_z",&Validation_.electron_proj_vertex_z_); // vector
-  tree_->Branch("reco.alpha_vertex_x",&Validation_.alpha_vertex_x_); // vector
-  tree_->Branch("reco.alpha_vertex_y",&Validation_.alpha_vertex_y_); // vector
-  tree_->Branch("reco.alpha_vertex_z",&Validation_.alpha_vertex_z_); // vector
-  tree_->Branch("reco.alpha_dir_x",&Validation_.alpha_dir_x_); // vector
-  tree_->Branch("reco.alpha_dir_y",&Validation_.alpha_dir_y_); // vector
-  tree_->Branch("reco.alpha_dir_z",&Validation_.alpha_dir_z_); // vector
-  tree_->Branch("reco.alpha_proj_vertex_x",&Validation_.alpha_proj_vertex_x_); // vector
-  tree_->Branch("reco.alpha_proj_vertex_y",&Validation_.alpha_proj_vertex_y_); // vector
-  tree_->Branch("reco.alpha_proj_vertex_z",&Validation_.alpha_proj_vertex_z_); // vector
-  tree_->Branch("reco.edgemost_vertex",&Validation_.edgemost_vertex_);
-  
-  // Topologies
-  tree_->Branch("reco.topology_1e1gamma",&Validation_.topology_1e1gamma_);
-  tree_->Branch("reco.topology_1e1alpha",&Validation_.topology_1e1alpha_);
-  tree_->Branch("reco.topology_1engamma",&Validation_.topology_1engamma_);
-  tree_->Branch("reco.topology_2e",&Validation_.topology_2e_);
-  tree_->Branch("reco.topology_1e",&Validation_.topology_1e_);
-
-  
-  // Multi-track topology info
-  tree_->Branch("reco.angle_between_tracks",&Validation_.angle_between_tracks_);
-  tree_->Branch("reco.same_side_of_foil",&Validation_.same_side_of_foil_);
-  tree_->Branch("reco.first_track_direction_x",&Validation_.first_track_direction_x_);
-  tree_->Branch("reco.first_track_direction_y",&Validation_.first_track_direction_y_);
-  tree_->Branch("reco.first_track_direction_z",&Validation_.first_track_direction_z_);
-  tree_->Branch("reco.second_track_direction_x",&Validation_.second_track_direction_x_);
-  tree_->Branch("reco.second_track_direction_y",&Validation_.second_track_direction_y_);
-  tree_->Branch("reco.second_track_direction_z",&Validation_.second_track_direction_z_);
-  tree_->Branch("reco.internal_probability",&Validation_.internal_probability_);
-  tree_->Branch("reco.external_probability",&Validation_.external_probability_);
-  tree_->Branch("reco.foil_projected_internal_probability",&Validation_.foil_projected_internal_probability_);
-  tree_->Branch("reco.foil_projected_external_probability",&Validation_.foil_projected_external_probability_);
   tree_->Branch("reco.calo_hit_time_separation",&Validation_.calo_hit_time_separation_);
-
-  // Alpha finding
-  tree_->Branch("reco.delayed_track_time",&Validation_.delayed_track_time_);
-  tree_->Branch("reco.delayed_cluster_hit_count",&Validation_.delayed_cluster_hit_count_);
-  tree_->Branch("reco.foil_alpha_count",&Validation_.foil_alpha_count_);
-  tree_->Branch("reco.alpha_track_length",&Validation_.alpha_track_length_);
-  tree_->Branch("reco.proj_track_length_alpha",&Validation_.proj_track_length_alpha_);
-  tree_->Branch("reco.alpha_crosses_foil",&Validation_.alpha_crosses_foil_);
-  
-  
-  // Calorimeter positions
-  tree_->Branch("reco.electron_hits_mainwall",&Validation_.electron_hits_mainwall_);
-  tree_->Branch("reco.electron_hits_xwall",&Validation_.electron_hits_xwall_);
-  tree_->Branch("reco.electron_hits_gveto",&Validation_.electron_hits_gveto_);
-  tree_->Branch("reco.gamma_hits_mainwall",&Validation_.gamma_hits_mainwall_);
-  tree_->Branch("reco.gamma_hits_xwall",&Validation_.gamma_hits_xwall_);
-  tree_->Branch("reco.gamma_hits_gveto",&Validation_.gamma_hits_gveto_);
-  tree_->Branch("reco.gamma_fractions_mainwall",&Validation_.gamma_fractions_mainwall_);
-  tree_->Branch("reco.gamma_fractions_xwall",&Validation_.gamma_fractions_xwall_);
-  tree_->Branch("reco.gamma_fractions_gveto",&Validation_.gamma_fractions_gveto_);
-
-  // Truth quantities (only applicable to simulation)
-  tree_->Branch("true.highest_primary_energy",&Validation_.true_highest_primary_energy_);
-  tree_->Branch("true.second_primary_energy",&Validation_.true_second_primary_energy_);
-  tree_->Branch("true.higher_particle_type",&Validation_.true_higher_particle_type_);
-  tree_->Branch("true.lower_particle_type",&Validation_.true_lower_particle_type_);
-  tree_->Branch("true.total_energy",&Validation_.true_total_energy_);
-  tree_->Branch("true.vertex_x",&Validation_.true_vertex_x_);
-  tree_->Branch("true.vertex_y",&Validation_.true_vertex_y_);
-  tree_->Branch("true.vertex_z",&Validation_.true_vertex_z_);
-
   
   this->_set_initialized(true);
 }
@@ -186,112 +70,24 @@ dpp::base_module::process_status
 ValidationModule::process(datatools::things& workItem) {
   
   
-  // internal variables to mimic the ntuple variables, names are same but in camel case
-  bool passesTwoCalorimeters=false;
-  bool passesTwoPlusCalos=false;
-  bool passesTwoClusters=false;
-  bool passesTwoTracks=false;
-  bool passesAssociatedCalorimeters=false;
-  uint numberOfElectrons=0;
-  uint numberOfGammas=0;
+  // declare internal variables to mimic the ntuple variables, names are same but in camel case
   double totalCalorimeterEnergy=0;
-  double higherElectronEnergy=0;
-  double lowerElectronEnergy=0;
-  int verticesOnFoil=0;
-  int firstVerticesOnFoil=0;
   double timeDelay=-1;
-  bool is2electron=false;
-  bool is1electron=false;
-  double internalProbability=-1;
-  double internalChiSquared=-1;
-  double externalChiSquared=-1;
-  double externalProbability=-1;
-  double foilProjectedExternalProbability=-1;
-  double foilProjectedInternalProbability=-1;
-  bool is1e1gamma=false;
-  bool is1engamma=false;
-  bool is1e1alpha=false;
-  double electrongammaInternalProbability=-1;
-  double electrongammaExternalProbability=-1;
-  double electrongammaProjInternalProb=-1;
-  double electrongammaProjExternalProb=-1;
-  double higherTrueEnergy=0;
-  double lowerTrueEnergy=0;
-  double totalTrueEnergy=0;
-  int higherTrueType=0;
-  int lowerTrueType=0;
-  double  trueVertexX=-9999;
-  double  trueVertexY=-9999;
-  double  trueVertexZ=-9999;
   int clusterCount=0;
   int trackCount=0;
   int alphaCount=0;
-  int delayedHitCount=0;
-  int foilAlphaCount=0;
   int associatedTrackCount=0;
-  int smallClusterCount=0;
-  double delayedClusterHitCount=0;
-  double trackLengthAlpha=0;
-  double projectedTrackLengthAlpha=0;
-  double maxAlphaTime=-1;
   int caloHitCount=0;
-  double highestGammaEnergy=0;
-  double edgemostVertex=0;
-  double distanceBetweenFoilGeigerCell=30.838;
   double earliestCaloHit=-1.;
   double latestCaloHit=-1.;
   int geigerHitCount=0;
   int negativeTrackCount=0;
   int positiveTrackCount=0;
   std::vector<int> allTrackHitCounts;
-  
-  std::vector<snemo::datamodel::particle_track> gammaCandidates;
-  std::vector<snemo::datamodel::particle_track> electronCandidates;
-  std::vector<snemo::datamodel::particle_track> alphaCandidates;
-  std::vector<TrackDetails> gammaCandidateDetails;
-  std::vector<TrackDetails> electronCandidateDetails;
-  std::vector<TrackDetails> alphaCandidateDetails;
 
-
-  std::vector<double> gammaEnergies;
-  std::vector<double> electronEnergies;
-  std::vector<int> electronCharges;
-  std::vector<double> electronTrackLengths;
-  std::vector<double> electronProjTrackLengths;
-  std::vector<int> electronHitCounts;
-  std::vector<bool> electronsFromFoil;
-
-  std::vector<int> electronCaloType; // will be translated to the vectors for each type at the end
-  std::vector<int> gammaCaloType; // will be translated to the vectors for each type at the end
-
-  // To calculate the fraction of the energy from each particle that is deposited in each of the calorimeter walls
-  std::vector<double>electronMainwallFraction;
-  std::vector<double>electronXwallFraction;
-  std::vector<double>electronVetoFraction;
-  std::vector<double>gammaMainwallFraction;
-  std::vector<double>gammaXwallFraction;
-  std::vector<double>gammaVetoFraction;
-
-  std::vector<double> trajClDelayedTime;
-  
-  std::vector<TVector3> electronVertices;
-  std::vector<TVector3> electronDirections;
-  std::vector<TVector3> electronProjVertices;
-  std::vector<TVector3> alphaVertices;
-  std::vector<TVector3> alphaDirections;
-  std::vector<TVector3> alphaProjVertices;
-  
-  
-  double angleBetweenTracks;
-  bool sameSideOfFoil=false;
-  bool edgemostJoinedElectron=false;
-  double projectionDistanceXY=0;
-
-  uint highEnergyIndex = 0;
   // Grab calibrated data bank
   // Calibrated data will only be present in reconstructed files,
   // so wrap in a try block
-  
   
   try {
     const snemo::datamodel::calibrated_data& calData = workItem.get<snemo::datamodel::calibrated_data>("CD");
@@ -299,7 +95,6 @@ ValidationModule::process(datatools::things& workItem) {
     int nCalorimeterHits=0;
     int nCalHitsOverHighLimit=0;
     int nCalHitsOverLowLimit=0;
-    
     
     if (calData.has_calibrated_calorimeter_hits())
       {
@@ -325,25 +120,15 @@ ValidationModule::process(datatools::things& workItem) {
         }
       }
     
-      timeDelay=latestCaloHit-earliestCaloHit;
-      caloHitCount=nCalHitsOverLowLimit;
-      if (nCalorimeterHits==2 && nCalHitsOverHighLimit>=1 && nCalHitsOverLowLimit==2)
-        {
-          passesTwoCalorimeters=true; // ### should we allow hits below threshold?
-        }
-      if (nCalHitsOverHighLimit>=1 && nCalHitsOverLowLimit>=2)
-      {
-        passesTwoPlusCalos=true;
-      }
+    timeDelay=latestCaloHit-earliestCaloHit;
+    caloHitCount=nCalHitsOverLowLimit;
+
       // Count all the tracker (Geiger) hits
       if (calData.has_calibrated_tracker_hits())
       {
         const snemo::datamodel::calibrated_data::tracker_hit_collection_type& trackerHits = calData.calibrated_tracker_hits();
         for (snemo::datamodel::calibrated_data::tracker_hit_collection_type::const_iterator   iHit = trackerHits.begin(); iHit != trackerHits.end(); ++iHit) {
           geigerHitCount++;
-          const snemo::datamodel::calibrated_tracker_hit& hit = iHit->get();
-          // Check if the hit is delayed and if so count it
-          if (hit.is_delayed()) delayedHitCount++;
         }
       }
     }
@@ -362,15 +147,8 @@ ValidationModule::process(datatools::things& workItem) {
         snemo::datamodel::tracker_clustering_solution::cluster_col_type clusters=solution.get_clusters();
         for (snemo::datamodel::tracker_clustering_solution::cluster_col_type::const_iterator iCluster = clusters.begin();  iCluster != clusters.end(); ++ iCluster)
         {
-          const snemo::datamodel::tracker_cluster & cluster = iCluster->get();
-
-          if (cluster.get_number_of_hits()>=minHitsInCluster) ++clusterCount;
-            else ++smallClusterCount;
+          ++clusterCount;
         }
-      }
-    if (clusterCount==2 )
-      {
-        passesTwoClusters=true;
       }
   }
   catch (std::logic_error& e) {
@@ -386,417 +164,64 @@ ValidationModule::process(datatools::things& workItem) {
   try
   {
     const snemo::datamodel::particle_track_data& trackData = workItem.get<snemo::datamodel::particle_track_data>("PTD");
-    
     if (trackData.has_particles ())
     {
-
       for (uint iParticle=0;iParticle<trackData.get_number_of_particles();++iParticle)
       {
 
         snemo::datamodel::particle_track track=trackData.get_particle(iParticle);
-        TrackDetails trackDetails(geometry_manager_, track);
         
         // Basic debug info for any track
         if (track.get_charge()==snemo::datamodel::particle_track::NEGATIVE)
         {
           negativeTrackCount++;
+          trackCount++;
         }
         if (track.get_charge()==snemo::datamodel::particle_track::POSITIVE)
         {
           positiveTrackCount++;
+          trackCount++;
         }
-        
-        // Populate info for gammas
-        if (trackDetails.IsGamma())
+        if (track.get_charge()==snemo::datamodel::particle_track::UNDEFINED)
         {
-          numberOfGammas++;
-          int pos=InsertAndGetPosition(trackDetails.GetEnergy(), gammaEnergies, true); // Add energy to ordered list of gamma energies (highest first) and get where in the list it was added
-          // Now add the type of the first hit to a vector
-          InsertAt(trackDetails.GetFirstHitType(), gammaCaloType, pos);
-          // And the fraction of the energy deposited in each wall
-          InsertAt(trackDetails.GetMainwallFraction(), gammaMainwallFraction,pos);
-          InsertAt(trackDetails.GetXwallFraction(), gammaXwallFraction,pos);
-          InsertAt(trackDetails.GetVetoFraction(), gammaVetoFraction,pos);
-          InsertAt(track,gammaCandidates,pos);
-          InsertAt(trackDetails,gammaCandidateDetails,pos);
-          continue;
+          trackCount++;
         }
-        
-        if (trackDetails.MakesTrack()) trackCount++;
         else continue;
-
-
-        // Now we have only charged particles remaining there are a few things we can do:
-        // Identify electron candidates
-        // Identify alpha candidates
-        // Get edgemost inner vertex, regardless of whether they have associated calorimeters etc
-
-        // First the vertex:
-
-        // Count the number of vertices on the foil
-        if (trackDetails.HasFoilVertex())verticesOnFoil++;
-        
-        // For all the tracks in the event, which one has its foilmost vertex nearest the tunnel/mountain
-        // edge of the foil? We could use this to identify
-        // Events so near the edge they can't make a 3-cell track
-
-        double thisY = trackDetails.GetFoilmostVertexY();
-        if (TMath::Abs(thisY) > TMath::Abs(edgemostVertex)) edgemostVertex = thisY;
-        
-        // For electron candidates, we need to store the energies
-        if (trackDetails.IsElectron())
-        {
-          int pos=InsertAndGetPosition(trackDetails.GetEnergy(), electronEnergies, true);
-          // Add energy to ordered list of electron energies (highest first)
-          // and get where in the list it was added
-          // Now add the type of the first hit to a vector (electrons are currently only allowed one hit)
-          // If we allow clustered hits for an electron, we can easily add it in this framework
-          InsertAt(trackDetails.GetFirstHitType(), electronCaloType, pos);
-          // Vector of electron candidates is ordered
-          InsertAt(track,electronCandidates,pos);
-          InsertAt(trackDetails,electronCandidateDetails,pos);
-          // And we also want a vector of electron charges (they might be positrons)
-          InsertAt(trackDetails.GetCharge(),electronCharges,pos);
-          // And whether or not they are from the foil
-          InsertAt(trackDetails.HasFoilVertex(),electronsFromFoil,pos);
-          // Vertices, directions, and vertices if projected back to foil
-          InsertAt(trackDetails.GetFoilmostVertex(),electronVertices,pos);
-          InsertAt(trackDetails.GetProjectedVertex(),electronProjVertices,pos);
-          InsertAt(trackDetails.GetDirection(),electronDirections,pos);
-          InsertAt(trackDetails.GetTrackLength(),electronTrackLengths,pos);
-          InsertAt(trackDetails.GetProjectedTrackLength(),electronProjTrackLengths,pos);
-          InsertAt(trackDetails.GetTrackerHitCount(),electronHitCounts,pos);
-        }
-        
-        // Now look for alpha candidates
-        if (trackDetails.IsAlpha())
-        {
-          alphaCandidates.push_back(track);
-          alphaCandidateDetails.push_back(trackDetails);
-          // Vertex and direction info
-          alphaVertices.push_back(trackDetails.GetFoilmostVertex());
-          alphaDirections.push_back(trackDetails.GetDirection());
-          alphaProjVertices.push_back(trackDetails.GetProjectedVertex());
-          if (trackDetails.HasFoilVertex()) foilAlphaCount++;
-          // Time of first delayed hit
-          trajClDelayedTime.push_back(trackDetails.GetDelayTime());
-          delayedClusterHitCount = trackDetails.GetTrackerHitCount(); // This will get overwritten if there are 2+ alphas, is that really what we want?
-        }
-      } // end for each particle
-    } // end if has particles
-
-    //---------------------------------------
-    // Now identify topologies
-    //---------------------------------------
-    if (electronCandidates.size()==2 && trackCount==2)
-    { // at the moment - gammas allowed
-      is2electron = true;
-    }
-    if (electronCandidates.size()==1 && numberOfGammas>=1 && trackCount==1)
-    {
-      is1engamma = true;
-      if (numberOfGammas==1) is1e1gamma = true;
-    }
-    if (electronCandidates.size()==1 && numberOfGammas==0 && trackCount==1)
-    {
-      is1electron = true;
-    }
-    
-    if (electronCandidates.size() ==1 && alphaCandidates.size() ==1 && trackCount==2)
-    { // gammas allowed
-      is1e1alpha = true;
-    }
-    
-
-    //---------------------------------------
-    // Combined info for the topologies
-    //---------------------------------------
-    
-    // Calculate values for the 1e1alpha topology
-    // Want to iterate over the tracks in the electronCandidate and alphaCandidate vectors
-    if (is1e1alpha)
-    {
-      // Recalculate the projected track length based on the electron track
-      alphaCandidateDetails.at(0).GenerateAlphaProjections(&electronCandidateDetails.at(0));
-    }
-
-    // For 2-electron and 1-e-n-gamma events, calculate some internal and external probablilities:
-    // that the two particles originated at the same time from the foil (internal) or that
-    // one went to the foil and ejected the other from it (external)
-    if (is2electron || is1engamma)
-    {
-      std::vector<TrackDetails*> twoParticles;
-      twoParticles.push_back(&electronCandidateDetails.at(0));
-      if (is1engamma)
-      {
-        // Set the track length for the highest-energy gamma based on it sharing a vertex with the electron
-        gammaCandidateDetails.at(0).GenerateGammaTrackLengths(&electronCandidateDetails.at(0));
-        twoParticles.push_back(&gammaCandidateDetails.at(0));
       }
-      if (is2electron) // Second particle is the second electron
-      {
-        passesAssociatedCalorimeters=true;
-        twoParticles.push_back(&electronCandidateDetails.at(1));
-      }
-      CalculateProbabilities(internalProbability, externalProbability,  twoParticles,  false);
-      CalculateProbabilities(foilProjectedInternalProbability, foilProjectedExternalProbability,  twoParticles,  true);
-    }// end if either 2e or 1e n gamma
+    }
   }// end try on PTD bank
   catch (std::logic_error& e) {
     std::cerr << "failed to grab PTD bank : " << e.what() << std::endl;
     return dpp::base_module::PROCESS_INVALID;
   } //end catch
 
-  // From SD bank (simulated data - i.e. generator level):
-  // Get (true) energy of two most energetic particles
-  // Get (true) primary vertex position
-
-  try
-    {
-      const mctools::simulated_data& simData = workItem.get<mctools::simulated_data>("SD");
-      if (simData.has_data())
-      {
-        trueVertexX = simData.get_vertex().x();
-        trueVertexY = simData.get_vertex().y();
-        trueVertexZ= simData.get_vertex().z();
-        mctools::simulated_data::primary_event_type primaryEvent=simData.get_primary_event ();
-
-        for (int i=0;i<primaryEvent.get_number_of_particles();i++)// should be 2 particles for 0nubb
-        {
-          genbb::primary_particle trueParticle= primaryEvent.get_particle(i);
-          double energy=trueParticle.get_kinetic_energy();
-          double type=trueParticle.get_type();
-          totalTrueEnergy += energy;
-          // Populate the two highest true energies
-          if (energy > higherTrueEnergy)
-          {
-            lowerTrueEnergy=higherTrueEnergy;
-            higherTrueEnergy=energy;
-            higherTrueType=type;
-          }
-          else if (energy > lowerTrueEnergy)
-          {
-            lowerTrueEnergy=energy;
-            lowerTrueType=type;
-          }
-        }
-      }
-    } // end try for SD bank
-  catch (std::logic_error& e) {
-    //std::cerr << "failed to grab SD bank : " << e.what() << std::endl;
-    //return dpp::base_module::PROCESS_ERROR;
-    // This is OK, if it's data there will be no SD bank
-  }     // end catch for SD bank
-
-  passesTwoTracks = (trackCount==2);
-  // Sort the electron energies, largest first
-  std::sort (electronEnergies.begin(), electronEnergies.end());
-  std::reverse (electronEnergies.begin(), electronEnergies.end());
-  // Sort the electron energies, largest first
-  std::sort (gammaEnergies.begin(), gammaEnergies.end());
-  std::reverse (gammaEnergies.begin(), gammaEnergies.end());
-
-  higherElectronEnergy=0;
-  lowerElectronEnergy=0;
-  if (electronCandidates.size()>0) higherElectronEnergy=electronEnergies.at(0);
-  if (electronCandidates.size()>1) lowerElectronEnergy=electronEnergies.at(1);
-
-  highestGammaEnergy=0;
-  if (gammaCandidates.size()>0) highestGammaEnergy=gammaEnergies.at(0);
-
   
   // Initialise variables that might not otherwise get set
   // It does not restart the vector for each entry so we have to do that manually
   ResetVars();
-  
-  // Cuts pass/fail
-  Validation_.passes_two_calorimeters_ = passesTwoCalorimeters;
-  Validation_.passes_two_plus_calos_ = passesTwoPlusCalos;
-  Validation_.passes_two_clusters_ = passesTwoClusters;
-  Validation_.passes_two_tracks_ = passesTwoTracks;
-  Validation_.passes_associated_calorimeters_ = passesAssociatedCalorimeters;
-  Validation_.number_of_electrons_=electronCandidates.size();
-  Validation_.electron_energies_=electronEnergies;
-  Validation_.gamma_energies_=gammaEnergies;
-  Validation_.electron_charges_=electronCharges;
 
-
-  // Reconstructed energies
-  Validation_.lower_electron_energy_=lowerElectronEnergy;
-  Validation_.higher_electron_energy_=higherElectronEnergy;
   Validation_.total_calorimeter_energy_ = totalCalorimeterEnergy;
 
   // Unassociated calorimeter energy is the total energy of the gammas
   double unassociatedEnergy=0.;
-  for (int i=0; i<gammaEnergies.size();i++)
-  {
-    unassociatedEnergy += gammaEnergies.at(i);
-  }
-  
+//  for (int i=0; i<gammaEnergies.size();i++)
+//  {
+//    unassociatedEnergy += gammaEnergies.at(i);
+//  }
+//
   Validation_.unassociated_calorimeter_energy_ = unassociatedEnergy;
-  
-  // "First" track is the higher energy one
-  //uint highEnergyIndex =(calorimeterEnergy[0]>calorimeterEnergy[1] ? 0:1);
-  uint lowEnergyIndex = 1-highEnergyIndex;
 
-
-  // And the new vertex vectors - we can rely on these all being the same size of vectors as we populate them all together
-
-  
-  
-  for (int i=0;i<electronVertices.size();i++)
-  {
-    Validation_.electron_vertex_x_.push_back(electronVertices.at(i).X());
-    Validation_.electron_vertex_y_.push_back(electronVertices.at(i).Y());
-    Validation_.electron_vertex_z_.push_back(electronVertices.at(i).Z());
-    Validation_.electron_proj_vertex_x_.push_back(electronProjVertices.at(i).X());
-    Validation_.electron_proj_vertex_y_.push_back(electronProjVertices.at(i).Y());
-    Validation_.electron_proj_vertex_z_.push_back(electronProjVertices.at(i).Z());
-    Validation_.electron_dir_x_.push_back(electronDirections.at(i).X());
-    Validation_.electron_dir_y_.push_back(electronDirections.at(i).Y());
-    Validation_.electron_dir_z_.push_back(electronDirections.at(i).Z());
-  }
-
-  for (int i=0;i<alphaVertices.size();i++)
-  {
-    Validation_.alpha_vertex_x_.push_back(alphaVertices.at(i).X());
-    Validation_.alpha_vertex_y_.push_back(alphaVertices.at(i).Y());
-    Validation_.alpha_vertex_z_.push_back(alphaVertices.at(i).Z());
-    Validation_.alpha_proj_vertex_x_.push_back(alphaProjVertices.at(i).X());
-    Validation_.alpha_proj_vertex_y_.push_back(alphaProjVertices.at(i).Y());
-    Validation_.alpha_proj_vertex_z_.push_back(alphaProjVertices.at(i).Z());
-    Validation_.alpha_dir_x_.push_back(alphaDirections.at(i).X());
-    Validation_.alpha_dir_y_.push_back(alphaDirections.at(i).Y());
-    Validation_.alpha_dir_z_.push_back(alphaDirections.at(i).Z());
-  }
-  
-  // Special vertex variables
-  if (is2electron || is1e1alpha)
-    // At the moment we only set these for these two topologies. This should possibly change
-  {
-    //First  vertex is the high-energy electron for 2e or the only electron for 1e1alpha
-    Validation_.first_proj_vertex_y_ = electronProjVertices.at(0).Y();
-    Validation_.first_proj_vertex_z_ = electronProjVertices.at(0).Z();
-    Validation_.first_vertex_x_ = electronVertices.at(0).X();
-    Validation_.first_vertex_y_ = electronVertices.at(0).Y();
-    Validation_.first_vertex_z_ = electronVertices.at(0).Z();
-    Validation_.first_track_direction_x_= electronDirections.at(0).X();
-    Validation_.first_track_direction_y_= electronDirections.at(0).Y();
-    Validation_.first_track_direction_z_= electronDirections.at(0).Z();
-    projectionDistanceXY=(electronVertices.at(0)-electronProjVertices.at(0)).Perp();
-  }
-  if (is2electron ) // The second one is the lower-energy electron
-  {
-    Validation_.second_proj_vertex_y_ = electronProjVertices.at(1).Y();
-    Validation_.second_proj_vertex_z_ = electronProjVertices.at(1).Z();
-    Validation_.second_vertex_x_ = electronVertices.at(1).X();
-    Validation_.second_vertex_y_ = electronVertices.at(1).Y();
-    Validation_.second_vertex_z_ = electronVertices.at(1).Z();
-    Validation_.second_track_direction_x_= electronDirections.at(1).X();
-    Validation_.second_track_direction_y_= electronDirections.at(1).Y();
-    Validation_.second_track_direction_z_= electronDirections.at(1).Z();
-    
-    Validation_.vertex_separation_= (electronVertices.at(0) - electronVertices.at(1)).Mag();
-    Validation_.foil_projection_separation_= (electronProjVertices.at(0) - electronProjVertices.at(1)).Mag();
-    Validation_.angle_between_tracks_= electronDirections.at(0).Angle(electronDirections.at(1));
-    
-    double thisProjectionDistance=(electronVertices.at(1)-electronProjVertices.at(1)).Perp();
-    if (thisProjectionDistance > projectionDistanceXY)projectionDistanceXY=thisProjectionDistance;
-  }
-
-  if(is1e1alpha)
-  {
-    Validation_.alpha_track_length_=alphaCandidateDetails.at(0).GetTrackLength();
-    Validation_.proj_track_length_alpha_=alphaCandidateDetails.at(0).GetProjectedTrackLength();
-    Validation_.alpha_crosses_foil_=alphaCandidateDetails.at(0).TrackCrossesFoil();
-
-    // Second vertex is the alpha
-    Validation_.second_proj_vertex_y_=alphaCandidateDetails.at(0).GetProjectedVertex().Y();
-    Validation_.second_proj_vertex_z_=alphaCandidateDetails.at(0).GetProjectedVertex().Z();
-    Validation_.second_vertex_x_= alphaVertices.at(0).X();
-    Validation_.second_vertex_y_= alphaVertices.at(0).Y();
-    Validation_.second_vertex_z_= alphaVertices.at(0).Z();
-    Validation_.second_track_direction_x_= alphaDirections.at(0).X();
-    Validation_.second_track_direction_y_= alphaDirections.at(0).Y();
-    Validation_.second_track_direction_z_= alphaDirections.at(0).Z();
-    
-      // Some two-particle topology calculations
-    Validation_.vertex_separation_=(electronVertices.at(0) - alphaVertices.at(0)).Mag();
-    Validation_.foil_projection_separation_= (electronProjVertices.at(0) - alphaCandidateDetails.at(0).GetProjectedVertex()).Mag();
-    Validation_.angle_between_tracks_= electronDirections.at(0).Angle(alphaDirections.at(0));
-    
-    double thisProjectionDistance=(alphaVertices.at(0)-alphaProjVertices.at(0)).Perp();
-    if (thisProjectionDistance > projectionDistanceXY)projectionDistanceXY=thisProjectionDistance;
-
-  }
-  
-  // Track direction
-  if (is2electron || is1e1alpha) // This works in either case
-    {
-      Validation_.same_side_of_foil_= ((Validation_.first_track_direction_x_ * Validation_.second_track_direction_x_) > 0); // X components both positive or both negative
-    }
-  // Vertices
-  Validation_.vertices_on_foil_=verticesOnFoil;
-  
-  
-  Validation_.projection_distance_xy_=projectionDistanceXY;
-  Validation_.foil_alpha_count_=foilAlphaCount;
-  Validation_.electrons_from_foil_=electronsFromFoil;
-  Validation_.electron_track_lengths_=electronTrackLengths;
-  Validation_.electron_hit_counts_=electronHitCounts;
-  
- 
   // Timing
   Validation_.calo_hit_time_separation_=TMath::Abs(timeDelay);
-  Validation_.delayed_track_time_= &trajClDelayedTime;
-  Validation_.internal_probability_=internalProbability;
-  Validation_.external_probability_=externalProbability;
-  Validation_.foil_projected_internal_probability_=foilProjectedInternalProbability;
-  Validation_.foil_projected_external_probability_=foilProjectedExternalProbability;
-
-  // Topology
-
-
-  Validation_.topology_1engamma_=is1engamma;
-  Validation_.topology_1e1gamma_=is1e1gamma;
-  Validation_.topology_1e1alpha_=is1e1alpha;
-  Validation_.topology_2e_=is2electron;
-  Validation_.topology_1e_=is1electron;
-  
-
-  // Calorimeter walls: fractions of energy in each and vector of booleans
-  // to say whether there are any hits in that wall
-  Validation_.gamma_fractions_mainwall_ =  gammaMainwallFraction;
-  Validation_.gamma_fractions_xwall_ = gammaXwallFraction;
-  Validation_.gamma_fractions_gveto_ = gammaVetoFraction;
-  PopulateWallVectors(electronCaloType, Validation_.electron_hits_mainwall_, Validation_.electron_hits_xwall_,  Validation_.electron_hits_gveto_ );
-  PopulateWallVectors(gammaCaloType, Validation_.gamma_hits_mainwall_, Validation_.gamma_hits_xwall_,  Validation_.gamma_hits_gveto_ );
 
   // Debug information
   Validation_.calorimeter_hit_count_=caloHitCount;
   Validation_.geiger_hit_count_=geigerHitCount;
-  Validation_.small_cluster_count_=smallClusterCount;
   Validation_.cluster_count_=clusterCount;
-  Validation_.highest_gamma_energy_=  highestGammaEnergy;
-  Validation_.edgemost_vertex_=edgemostVertex;
-  Validation_.number_of_gammas_=gammaCandidates.size();
   Validation_.track_count_=trackCount;
   Validation_.negative_track_count_=negativeTrackCount;
   Validation_.positive_track_count_=positiveTrackCount;
-  Validation_.associated_track_count_=electronCandidates.size();
-  Validation_.alpha_count_=alphaCandidates.size();
-  Validation_.delayed_cluster_hit_count_=delayedClusterHitCount;
-  Validation_.delayed_hit_count_=delayedHitCount;
-  
-  // Truth info, simulation only
-  Validation_.true_highest_primary_energy_=higherTrueEnergy;
-  Validation_.true_second_primary_energy_=lowerTrueEnergy;
-  Validation_.true_total_energy_= totalTrueEnergy;
-  Validation_.true_higher_particle_type_=higherTrueType;
-  Validation_.true_lower_particle_type_=lowerTrueType;
-  Validation_.true_vertex_x_=trueVertexX;
-  Validation_.true_vertex_y_=trueVertexY;
-  Validation_.true_vertex_z_=trueVertexZ;
+  //Validation_.associated_track_count_=electronCandidates.size();
   
   tree_->Fill();
   
@@ -804,194 +229,9 @@ ValidationModule::process(datatools::things& workItem) {
   return dpp::base_module::PROCESS_OK;
 }
 
-void ValidationModule::CalculateProbabilities(double &internalProbability, double &externalProbability, std::vector<TrackDetails*> twoParticles, bool projected)
-{
-    double trackLengths[2];
-    double theoreticalTimeOfFlight[2];
-    double internalEmissionTime[2];
-    double internalChiSquared;
-    double externalChiSquared;
-    for (int count=0;count<2;count++) // 2 particles
-    {
-      if (projected)
-      {
-        trackLengths[count]=twoParticles.at(count)->GetProjectedTrackLength();
-      }
-      else
-      {
-        trackLengths[count]=twoParticles.at(count)->GetTrackLength();
-      }
-      theoreticalTimeOfFlight[count] = trackLengths[count]/ (twoParticles.at(count)->GetBeta() * speedOfLight);
-      internalEmissionTime[count] = twoParticles.at(count)->GetTime() - theoreticalTimeOfFlight[count];
-    }
-    // Calculate internal probability: both particles emitted at the same time
-    // so time between the calo hits should be Time of flight 1 - Time of flight 2
-  
-  // Calculate external probability: one particle travels to foil then the other travels from foil
-  // so time between the calo hits should be Time of flight  1 + Time of flight  2
-  if (projected)
-  {
-    internalChiSquared = pow((internalEmissionTime[0] - internalEmissionTime[1]) ,2) / (twoParticles.at(0)->GetProjectedTimeVariance() + twoParticles.at(1)->GetProjectedTimeVariance()) ;
-    
-    externalChiSquared=pow(( TMath::Abs(twoParticles.at(0)->GetTime()-twoParticles.at(1)->GetTime()) - (theoreticalTimeOfFlight[0]+theoreticalTimeOfFlight[1]) ),2)/ (twoParticles.at(0)->GetProjectedTimeVariance() + twoParticles.at(1)->GetProjectedTimeVariance()) ;
-  }else
-  {
-    
-    internalChiSquared = pow((internalEmissionTime[0] - internalEmissionTime[1]) ,2) / (twoParticles.at(0)->GetTotalTimeVariance() + twoParticles.at(1)->GetTotalTimeVariance()) ;
-    externalChiSquared=pow(( TMath::Abs(twoParticles.at(0)->GetTime()-twoParticles.at(1)->GetTime()) - (theoreticalTimeOfFlight[0]+theoreticalTimeOfFlight[1]) ),2)/(twoParticles.at(0)->GetTotalTimeVariance() + twoParticles.at(1)->GetTotalTimeVariance()) ;
-  }
-  // Integrate a chisquare distribution to the value if the internal/external chi square
-  // to get the probability of it being an internal or external event
-  internalProbability=this->ProbabilityFromChiSquared(internalChiSquared);
-  externalProbability=this->ProbabilityFromChiSquared(externalChiSquared);
-}
-                             
-// Calculate probabilities for an internal (both particles from the foil) and external (calo 1 -> foil -> calo 2) topology
-void ValidationModule::CalculateProbabilities(double &internalProbability, double &externalProbability, double *calorimeterEnergies,  double *betas, double *trackLengths, double *calorimeterTimes, double *totalTimeVariances )
-{
-  double theoreticalTimeOfFlight[2];
-  double internalEmissionTime[2];
-  double internalChiSquared;
-  double externalChiSquared;
-  for (int count=0;count<2;count++)
-  {
-    //energies are in MeV
-    theoreticalTimeOfFlight[count] = trackLengths[count]/ (betas[count] * speedOfLight);
-    internalEmissionTime[count] = calorimeterTimes[count] - theoreticalTimeOfFlight[count];
-
-  } // for each particle
-
-  // Calculate internal probability: both particles emitted at the same time
-  // so time between the calo hits should be Time of flight 1 - Time of flight 2
-
-  internalChiSquared = pow((internalEmissionTime[0] - internalEmissionTime[1]) ,2) / (totalTimeVariances[0] + totalTimeVariances[1]) ;
-  double integralForProbability=0;
-  internalProbability=this->ProbabilityFromChiSquared(internalChiSquared);
-
-  // Calculate external probability: one particle travels to foil then the other travels from foil
-  // so time between the calo hits should be Time of flight  1 + Time of flight  2
-  externalChiSquared=pow(( TMath::Abs(calorimeterTimes[0]-calorimeterTimes[1]) - (theoreticalTimeOfFlight[0]+theoreticalTimeOfFlight[1]) ),2)/(totalTimeVariances[0] + totalTimeVariances[1]) ;
-  externalProbability=this->ProbabilityFromChiSquared(externalChiSquared);
-
-}
-
-
-/* Functions for sorting vectors of calorimeter wall positions */
-
-// Insert a value into a vector (of the same type), at a particular position (0 is first etc)
-// If you pick a position past the end of the vector, stick it on the end
-// Position of -1 also sticks it at the end
-template <typename T>
-void ValidationModule::InsertAt(T toInsert, std::vector<T> &vec, int position)
-{
-  if (position>vec.size() || position==-1 )
-  {
-    vec.push_back(toInsert);
-    return;
-  }
-  else
-  {
-    typename std::vector<T>::iterator it=vec.begin();
-    vec.insert(std::next(it,position),toInsert);
-  }
-  return;
-}
-
-// Fill in the 3 vectors of wall booleans based on the calo wall that got the first hit
-void ValidationModule::PopulateWallVectors(std::vector<int> &calotypes, std::vector<bool> &mainVec, std::vector<bool> &xVec, std::vector<bool> &vetoVec)
-{
-  mainVec.clear();
-  xVec.clear();
-  vetoVec.clear();
-  for (int i=0;i<calotypes.size();i++)
-  {
-    mainVec.push_back(calotypes.at(i)==mainWallHitType);
-    xVec.push_back(calotypes.at(i)==xWallHitType);
-    vetoVec.push_back(calotypes.at(i)==gammaVetoHitType);
-  }
-}
-
-
-// Find the position to insert a value into a sorted vector
-int ValidationModule::InsertAndGetPosition(double toInsert, std::vector<double> &vec, bool highestFirst)
-{
-  std::vector<double>::iterator it;
-  int len=vec.size();
-
-  it=vec.begin();
-  for (int i=0;i<len;i++)
-  {
-    if ((highestFirst && (toInsert > vec.at(i))) || (!highestFirst && (toInsert < vec.at(i))))
-    {
-      vec.insert(std::next(it,i),toInsert);
-      return i;
-    }
-  }
-  vec.push_back(toInsert);
-  return -1; // It needs adding at the end
-}
-
-// Convert a chi-squared value to a probability by integrating the chi square distribution up to that limit
-double ValidationModule::ProbabilityFromChiSquared(double chiSquared)
-{
-  // To get probability from a chi squared value, integrate distribution to our chisq limit
-  // We have one degree of freedom
-  TF1 *function_to_integrate = new TF1("Chi-square function", "pow(x,-0.5) * exp(-0.5 * x)", 0, chiSquared);
-  double * params = 0;
-  if (chiSquared>3000) chiSquared=3000; // The integral appears to not work properly at values bigger than this, eventually tending to 0 rather than root2pi and thus giving a misleading probability of 1 when it should be almost 0.
-  double integral=function_to_integrate->Integral(0,chiSquared,1e-6);
-  double result = (1. - 1./TMath::Sqrt(2.*TMath::Pi()) * integral);
-  // Fix rounding errors where result can be a tiny negative number
-  if (result < 0 ) return 0 ;
-  return result;
-}
-
 
 void ValidationModule::ResetVars()
 {
-  Validation_.electron_track_lengths_.clear();
-  Validation_.electron_vertex_x_.clear();
-  Validation_.electron_vertex_y_.clear();
-  Validation_.electron_vertex_z_.clear();
-  Validation_.electron_proj_vertex_x_.clear();
-  Validation_.electron_proj_vertex_y_.clear();
-  Validation_.electron_proj_vertex_z_.clear();
-  Validation_.electron_dir_x_.clear();
-  Validation_.electron_dir_y_.clear();
-  Validation_.electron_dir_z_.clear();
-  Validation_.alpha_vertex_x_.clear();
-  Validation_.alpha_vertex_y_.clear();
-  Validation_.alpha_vertex_z_.clear();
-  Validation_.alpha_proj_vertex_x_.clear();
-  Validation_.alpha_proj_vertex_y_.clear();
-  Validation_.alpha_proj_vertex_z_.clear();
-  Validation_.alpha_dir_x_.clear();
-  Validation_.alpha_dir_y_.clear();
-  Validation_.alpha_dir_z_.clear();
-  
-  // And initialize the rest, what a drag
-  Validation_.first_proj_vertex_y_ = -9999;
-  Validation_.first_proj_vertex_z_ = -9999;
-  Validation_.first_vertex_x_ = -9999;
-  Validation_.first_vertex_y_ = -9999;
-  Validation_.first_vertex_z_ = -9999;
-  Validation_.first_track_direction_x_= -9999;
-  Validation_.first_track_direction_y_= -9999;
-  Validation_.first_track_direction_z_= -9999;
-  Validation_.second_proj_vertex_y_ = -9999;
-  Validation_.second_proj_vertex_z_ = -9999;
-  Validation_.second_vertex_x_ = -9999;
-  Validation_.second_vertex_y_ = -9999;
-  Validation_.second_vertex_z_ = -9999;
-  Validation_.second_track_direction_x_= -9999;
-  Validation_.second_track_direction_y_= -9999;
-  Validation_.second_track_direction_z_= -9999;
-  Validation_.vertex_separation_= -9999;
-  Validation_.foil_projection_separation_= -9999;
-  Validation_.angle_between_tracks_= -9999;
-  Validation_.alpha_track_length_=-9999;
-  Validation_.proj_track_length_alpha_=-9999;
-  Validation_.alpha_crosses_foil_=false;
 
 }
 

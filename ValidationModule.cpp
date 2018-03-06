@@ -1,4 +1,4 @@
-#include "SensitivityModule.h"
+#include "ValidationModule.h"
 const double highEnergyLimit=0.150;// 150 keV
 const double lowEnergyLimit=0.050; // 50 keV
 const double electronMass=0.5109989461; // From pdg
@@ -9,17 +9,17 @@ int xWallHitType=1232;
 int gammaVetoHitType=1252;
 
 using namespace std;
-DPP_MODULE_REGISTRATION_IMPLEMENT(SensitivityModule,"SensitivityModule");
-SensitivityModule::SensitivityModule() : dpp::base_module()
+DPP_MODULE_REGISTRATION_IMPLEMENT(ValidationModule,"ValidationModule");
+ValidationModule::ValidationModule() : dpp::base_module()
 {
-  filename_output_="sensitivity.root";
+  filename_output_="Validation.root";
 }
 
-SensitivityModule::~SensitivityModule() {
+ValidationModule::~ValidationModule() {
   if (is_initialized()) this->reset();
 }
 
-void SensitivityModule::initialize(const datatools::properties& myConfig,
+void ValidationModule::initialize(const datatools::properties& myConfig,
                                    datatools::service_manager& flServices,
                                    dpp::module_handle_dict_type& /*moduleDict*/){
 
@@ -40,150 +40,150 @@ void SensitivityModule::initialize(const datatools::properties& myConfig,
   } catch (std::logic_error& e) {
   }
 
-  // Use the method of PTD2ROOT to create a root file with just the branches we need for the sensitivity analysis
+  // Use the method of PTD2ROOT to create a root file with just the branches we need for the Validation analysis
 
 
   hfile_ = new TFile(filename_output_.c_str(),"RECREATE","Output file of Simulation data");
   hfile_->cd();
-  tree_ = new TTree("Sensitivity","Sensitivity");
+  tree_ = new TTree("Validation","Validation");
   tree_->SetDirectory(hfile_);
   
   // Reconstructed quantities
   
   // Standard cuts
-  tree_->Branch("reco.passes_two_calorimeters",&sensitivity_.passes_two_calorimeters_);
-  tree_->Branch("reco.passes_two_plus_calos",&sensitivity_.passes_two_plus_calos_);
-  tree_->Branch("reco.passes_two_clusters",&sensitivity_.passes_two_clusters_);
-  tree_->Branch("reco.passes_two_tracks",&sensitivity_.passes_two_tracks_);
-  tree_->Branch("reco.passes_associated_calorimeters",&sensitivity_.passes_associated_calorimeters_);
+  tree_->Branch("reco.passes_two_calorimeters",&Validation_.passes_two_calorimeters_);
+  tree_->Branch("reco.passes_two_plus_calos",&Validation_.passes_two_plus_calos_);
+  tree_->Branch("reco.passes_two_clusters",&Validation_.passes_two_clusters_);
+  tree_->Branch("reco.passes_two_tracks",&Validation_.passes_two_tracks_);
+  tree_->Branch("reco.passes_associated_calorimeters",&Validation_.passes_associated_calorimeters_);
   
   // Some basic counts
-  tree_->Branch("reco.calorimeter_hit_count",&sensitivity_.calorimeter_hit_count_);
-  tree_->Branch("reco.cluster_count",&sensitivity_.cluster_count_);
-  tree_->Branch("reco.track_count",&sensitivity_.track_count_);
-  tree_->Branch("reco.negative_track_count",&sensitivity_.negative_track_count_);
-  tree_->Branch("reco.positive_track_count",&sensitivity_.positive_track_count_);
-  tree_->Branch("reco.associated_track_count",&sensitivity_.associated_track_count_);
-  tree_->Branch("reco.small_cluster_count",&sensitivity_.small_cluster_count_);
-  tree_->Branch("reco.geiger_hit_count",&sensitivity_.geiger_hit_count_);
-  tree_->Branch("reco.all_track_hit_counts",&sensitivity_.all_track_hit_counts_);
-  tree_->Branch("reco.delayed_hit_count",&sensitivity_.delayed_hit_count_);
+  tree_->Branch("reco.calorimeter_hit_count",&Validation_.calorimeter_hit_count_);
+  tree_->Branch("reco.cluster_count",&Validation_.cluster_count_);
+  tree_->Branch("reco.track_count",&Validation_.track_count_);
+  tree_->Branch("reco.negative_track_count",&Validation_.negative_track_count_);
+  tree_->Branch("reco.positive_track_count",&Validation_.positive_track_count_);
+  tree_->Branch("reco.associated_track_count",&Validation_.associated_track_count_);
+  tree_->Branch("reco.small_cluster_count",&Validation_.small_cluster_count_);
+  tree_->Branch("reco.geiger_hit_count",&Validation_.geiger_hit_count_);
+  tree_->Branch("reco.all_track_hit_counts",&Validation_.all_track_hit_counts_);
+  tree_->Branch("reco.delayed_hit_count",&Validation_.delayed_hit_count_);
 
   
   // Numbers of reconstructed particles
-  tree_->Branch("reco.number_of_electrons",&sensitivity_.number_of_electrons_);
-  tree_->Branch("reco.electron_charges",&sensitivity_.electron_charges_);
-  tree_->Branch("reco.number_of_gammas",&sensitivity_.number_of_gammas_);
-  tree_->Branch("reco.alpha_count",&sensitivity_.alpha_count_);
+  tree_->Branch("reco.number_of_electrons",&Validation_.number_of_electrons_);
+  tree_->Branch("reco.electron_charges",&Validation_.electron_charges_);
+  tree_->Branch("reco.number_of_gammas",&Validation_.number_of_gammas_);
+  tree_->Branch("reco.alpha_count",&Validation_.alpha_count_);
   
   // Energies and calo times
-  tree_->Branch("reco.total_calorimeter_energy",&sensitivity_.total_calorimeter_energy_);
-  tree_->Branch("reco.unassociated_calorimeter_energy",&sensitivity_.unassociated_calorimeter_energy_);
-  tree_->Branch("reco.higher_electron_energy",&sensitivity_.higher_electron_energy_);
-  tree_->Branch("reco.lower_electron_energy",&sensitivity_.lower_electron_energy_);
-  tree_->Branch("reco.electron_energies",&sensitivity_.electron_energies_);
-  tree_->Branch("reco.gamma_energies",&sensitivity_.gamma_energies_);
-  tree_->Branch("reco.highest_gamma_energy",&sensitivity_.highest_gamma_energy_);
+  tree_->Branch("reco.total_calorimeter_energy",&Validation_.total_calorimeter_energy_);
+  tree_->Branch("reco.unassociated_calorimeter_energy",&Validation_.unassociated_calorimeter_energy_);
+  tree_->Branch("reco.higher_electron_energy",&Validation_.higher_electron_energy_);
+  tree_->Branch("reco.lower_electron_energy",&Validation_.lower_electron_energy_);
+  tree_->Branch("reco.electron_energies",&Validation_.electron_energies_);
+  tree_->Branch("reco.gamma_energies",&Validation_.gamma_energies_);
+  tree_->Branch("reco.highest_gamma_energy",&Validation_.highest_gamma_energy_);
   
   // Electron track lengths
-  tree_->Branch("reco.electron_track_lengths",&sensitivity_.electron_track_lengths_);
-  tree_->Branch("reco.electron_hit_counts",&sensitivity_.electron_hit_counts_);
+  tree_->Branch("reco.electron_track_lengths",&Validation_.electron_track_lengths_);
+  tree_->Branch("reco.electron_hit_counts",&Validation_.electron_hit_counts_);
   
   // Vertex positions (max 2 tracks)
-  tree_->Branch("reco.first_vertex_x",&sensitivity_.first_vertex_x_);
-  tree_->Branch("reco.first_vertex_y",&sensitivity_.first_vertex_y_);
-  tree_->Branch("reco.first_vertex_z",&sensitivity_.first_vertex_z_);
-  tree_->Branch("reco.second_vertex_x",&sensitivity_.second_vertex_x_);
-  tree_->Branch("reco.second_vertex_y",&sensitivity_.second_vertex_y_);
-  tree_->Branch("reco.second_vertex_z",&sensitivity_.second_vertex_z_);
-  tree_->Branch("reco.first_proj_vertex_y",&sensitivity_.first_proj_vertex_y_);
-  tree_->Branch("reco.first_proj_vertex_z",&sensitivity_.first_proj_vertex_z_);
-  tree_->Branch("reco.second_proj_vertex_y",&sensitivity_.second_proj_vertex_y_);
-  tree_->Branch("reco.second_proj_vertex_z",&sensitivity_.second_proj_vertex_z_);
-  tree_->Branch("reco.vertex_separation",&sensitivity_.vertex_separation_);
-  tree_->Branch("reco.foil_projection_separation",&sensitivity_.foil_projection_separation_);
-  tree_->Branch("reco.projection_distance_xy",&sensitivity_.projection_distance_xy_);
-  tree_->Branch("reco.vertices_on_foil",&sensitivity_.vertices_on_foil_);
-  tree_->Branch("reco.electrons_from_foil",&sensitivity_.electrons_from_foil_);
-  tree_->Branch("reco.electron_vertex_x",&sensitivity_.electron_vertex_x_); // vector
-  tree_->Branch("reco.electron_vertex_y",&sensitivity_.electron_vertex_y_); // vector
-  tree_->Branch("reco.electron_vertex_z",&sensitivity_.electron_vertex_z_); // vector
-  tree_->Branch("reco.electron_dir_x",&sensitivity_.electron_dir_x_); // vector
-  tree_->Branch("reco.electron_dir_y",&sensitivity_.electron_dir_y_); // vector
-  tree_->Branch("reco.electron_dir_z",&sensitivity_.electron_dir_z_); // vector
-  tree_->Branch("reco.electron_proj_vertex_x",&sensitivity_.electron_proj_vertex_x_); // vector
-  tree_->Branch("reco.electron_proj_vertex_y",&sensitivity_.electron_proj_vertex_y_); // vector
-  tree_->Branch("reco.electron_proj_vertex_z",&sensitivity_.electron_proj_vertex_z_); // vector
-  tree_->Branch("reco.alpha_vertex_x",&sensitivity_.alpha_vertex_x_); // vector
-  tree_->Branch("reco.alpha_vertex_y",&sensitivity_.alpha_vertex_y_); // vector
-  tree_->Branch("reco.alpha_vertex_z",&sensitivity_.alpha_vertex_z_); // vector
-  tree_->Branch("reco.alpha_dir_x",&sensitivity_.alpha_dir_x_); // vector
-  tree_->Branch("reco.alpha_dir_y",&sensitivity_.alpha_dir_y_); // vector
-  tree_->Branch("reco.alpha_dir_z",&sensitivity_.alpha_dir_z_); // vector
-  tree_->Branch("reco.alpha_proj_vertex_x",&sensitivity_.alpha_proj_vertex_x_); // vector
-  tree_->Branch("reco.alpha_proj_vertex_y",&sensitivity_.alpha_proj_vertex_y_); // vector
-  tree_->Branch("reco.alpha_proj_vertex_z",&sensitivity_.alpha_proj_vertex_z_); // vector
-  tree_->Branch("reco.edgemost_vertex",&sensitivity_.edgemost_vertex_);
+  tree_->Branch("reco.first_vertex_x",&Validation_.first_vertex_x_);
+  tree_->Branch("reco.first_vertex_y",&Validation_.first_vertex_y_);
+  tree_->Branch("reco.first_vertex_z",&Validation_.first_vertex_z_);
+  tree_->Branch("reco.second_vertex_x",&Validation_.second_vertex_x_);
+  tree_->Branch("reco.second_vertex_y",&Validation_.second_vertex_y_);
+  tree_->Branch("reco.second_vertex_z",&Validation_.second_vertex_z_);
+  tree_->Branch("reco.first_proj_vertex_y",&Validation_.first_proj_vertex_y_);
+  tree_->Branch("reco.first_proj_vertex_z",&Validation_.first_proj_vertex_z_);
+  tree_->Branch("reco.second_proj_vertex_y",&Validation_.second_proj_vertex_y_);
+  tree_->Branch("reco.second_proj_vertex_z",&Validation_.second_proj_vertex_z_);
+  tree_->Branch("reco.vertex_separation",&Validation_.vertex_separation_);
+  tree_->Branch("reco.foil_projection_separation",&Validation_.foil_projection_separation_);
+  tree_->Branch("reco.projection_distance_xy",&Validation_.projection_distance_xy_);
+  tree_->Branch("reco.vertices_on_foil",&Validation_.vertices_on_foil_);
+  tree_->Branch("reco.electrons_from_foil",&Validation_.electrons_from_foil_);
+  tree_->Branch("reco.electron_vertex_x",&Validation_.electron_vertex_x_); // vector
+  tree_->Branch("reco.electron_vertex_y",&Validation_.electron_vertex_y_); // vector
+  tree_->Branch("reco.electron_vertex_z",&Validation_.electron_vertex_z_); // vector
+  tree_->Branch("reco.electron_dir_x",&Validation_.electron_dir_x_); // vector
+  tree_->Branch("reco.electron_dir_y",&Validation_.electron_dir_y_); // vector
+  tree_->Branch("reco.electron_dir_z",&Validation_.electron_dir_z_); // vector
+  tree_->Branch("reco.electron_proj_vertex_x",&Validation_.electron_proj_vertex_x_); // vector
+  tree_->Branch("reco.electron_proj_vertex_y",&Validation_.electron_proj_vertex_y_); // vector
+  tree_->Branch("reco.electron_proj_vertex_z",&Validation_.electron_proj_vertex_z_); // vector
+  tree_->Branch("reco.alpha_vertex_x",&Validation_.alpha_vertex_x_); // vector
+  tree_->Branch("reco.alpha_vertex_y",&Validation_.alpha_vertex_y_); // vector
+  tree_->Branch("reco.alpha_vertex_z",&Validation_.alpha_vertex_z_); // vector
+  tree_->Branch("reco.alpha_dir_x",&Validation_.alpha_dir_x_); // vector
+  tree_->Branch("reco.alpha_dir_y",&Validation_.alpha_dir_y_); // vector
+  tree_->Branch("reco.alpha_dir_z",&Validation_.alpha_dir_z_); // vector
+  tree_->Branch("reco.alpha_proj_vertex_x",&Validation_.alpha_proj_vertex_x_); // vector
+  tree_->Branch("reco.alpha_proj_vertex_y",&Validation_.alpha_proj_vertex_y_); // vector
+  tree_->Branch("reco.alpha_proj_vertex_z",&Validation_.alpha_proj_vertex_z_); // vector
+  tree_->Branch("reco.edgemost_vertex",&Validation_.edgemost_vertex_);
   
   // Topologies
-  tree_->Branch("reco.topology_1e1gamma",&sensitivity_.topology_1e1gamma_);
-  tree_->Branch("reco.topology_1e1alpha",&sensitivity_.topology_1e1alpha_);
-  tree_->Branch("reco.topology_1engamma",&sensitivity_.topology_1engamma_);
-  tree_->Branch("reco.topology_2e",&sensitivity_.topology_2e_);
-  tree_->Branch("reco.topology_1e",&sensitivity_.topology_1e_);
+  tree_->Branch("reco.topology_1e1gamma",&Validation_.topology_1e1gamma_);
+  tree_->Branch("reco.topology_1e1alpha",&Validation_.topology_1e1alpha_);
+  tree_->Branch("reco.topology_1engamma",&Validation_.topology_1engamma_);
+  tree_->Branch("reco.topology_2e",&Validation_.topology_2e_);
+  tree_->Branch("reco.topology_1e",&Validation_.topology_1e_);
 
   
   // Multi-track topology info
-  tree_->Branch("reco.angle_between_tracks",&sensitivity_.angle_between_tracks_);
-  tree_->Branch("reco.same_side_of_foil",&sensitivity_.same_side_of_foil_);
-  tree_->Branch("reco.first_track_direction_x",&sensitivity_.first_track_direction_x_);
-  tree_->Branch("reco.first_track_direction_y",&sensitivity_.first_track_direction_y_);
-  tree_->Branch("reco.first_track_direction_z",&sensitivity_.first_track_direction_z_);
-  tree_->Branch("reco.second_track_direction_x",&sensitivity_.second_track_direction_x_);
-  tree_->Branch("reco.second_track_direction_y",&sensitivity_.second_track_direction_y_);
-  tree_->Branch("reco.second_track_direction_z",&sensitivity_.second_track_direction_z_);
-  tree_->Branch("reco.internal_probability",&sensitivity_.internal_probability_);
-  tree_->Branch("reco.external_probability",&sensitivity_.external_probability_);
-  tree_->Branch("reco.foil_projected_internal_probability",&sensitivity_.foil_projected_internal_probability_);
-  tree_->Branch("reco.foil_projected_external_probability",&sensitivity_.foil_projected_external_probability_);
-  tree_->Branch("reco.calo_hit_time_separation",&sensitivity_.calo_hit_time_separation_);
+  tree_->Branch("reco.angle_between_tracks",&Validation_.angle_between_tracks_);
+  tree_->Branch("reco.same_side_of_foil",&Validation_.same_side_of_foil_);
+  tree_->Branch("reco.first_track_direction_x",&Validation_.first_track_direction_x_);
+  tree_->Branch("reco.first_track_direction_y",&Validation_.first_track_direction_y_);
+  tree_->Branch("reco.first_track_direction_z",&Validation_.first_track_direction_z_);
+  tree_->Branch("reco.second_track_direction_x",&Validation_.second_track_direction_x_);
+  tree_->Branch("reco.second_track_direction_y",&Validation_.second_track_direction_y_);
+  tree_->Branch("reco.second_track_direction_z",&Validation_.second_track_direction_z_);
+  tree_->Branch("reco.internal_probability",&Validation_.internal_probability_);
+  tree_->Branch("reco.external_probability",&Validation_.external_probability_);
+  tree_->Branch("reco.foil_projected_internal_probability",&Validation_.foil_projected_internal_probability_);
+  tree_->Branch("reco.foil_projected_external_probability",&Validation_.foil_projected_external_probability_);
+  tree_->Branch("reco.calo_hit_time_separation",&Validation_.calo_hit_time_separation_);
 
   // Alpha finding
-  tree_->Branch("reco.delayed_track_time",&sensitivity_.delayed_track_time_);
-  tree_->Branch("reco.delayed_cluster_hit_count",&sensitivity_.delayed_cluster_hit_count_);
-  tree_->Branch("reco.foil_alpha_count",&sensitivity_.foil_alpha_count_);
-  tree_->Branch("reco.alpha_track_length",&sensitivity_.alpha_track_length_);
-  tree_->Branch("reco.proj_track_length_alpha",&sensitivity_.proj_track_length_alpha_);
-  tree_->Branch("reco.alpha_crosses_foil",&sensitivity_.alpha_crosses_foil_);
+  tree_->Branch("reco.delayed_track_time",&Validation_.delayed_track_time_);
+  tree_->Branch("reco.delayed_cluster_hit_count",&Validation_.delayed_cluster_hit_count_);
+  tree_->Branch("reco.foil_alpha_count",&Validation_.foil_alpha_count_);
+  tree_->Branch("reco.alpha_track_length",&Validation_.alpha_track_length_);
+  tree_->Branch("reco.proj_track_length_alpha",&Validation_.proj_track_length_alpha_);
+  tree_->Branch("reco.alpha_crosses_foil",&Validation_.alpha_crosses_foil_);
   
   
   // Calorimeter positions
-  tree_->Branch("reco.electron_hits_mainwall",&sensitivity_.electron_hits_mainwall_);
-  tree_->Branch("reco.electron_hits_xwall",&sensitivity_.electron_hits_xwall_);
-  tree_->Branch("reco.electron_hits_gveto",&sensitivity_.electron_hits_gveto_);
-  tree_->Branch("reco.gamma_hits_mainwall",&sensitivity_.gamma_hits_mainwall_);
-  tree_->Branch("reco.gamma_hits_xwall",&sensitivity_.gamma_hits_xwall_);
-  tree_->Branch("reco.gamma_hits_gveto",&sensitivity_.gamma_hits_gveto_);
-  tree_->Branch("reco.gamma_fractions_mainwall",&sensitivity_.gamma_fractions_mainwall_);
-  tree_->Branch("reco.gamma_fractions_xwall",&sensitivity_.gamma_fractions_xwall_);
-  tree_->Branch("reco.gamma_fractions_gveto",&sensitivity_.gamma_fractions_gveto_);
+  tree_->Branch("reco.electron_hits_mainwall",&Validation_.electron_hits_mainwall_);
+  tree_->Branch("reco.electron_hits_xwall",&Validation_.electron_hits_xwall_);
+  tree_->Branch("reco.electron_hits_gveto",&Validation_.electron_hits_gveto_);
+  tree_->Branch("reco.gamma_hits_mainwall",&Validation_.gamma_hits_mainwall_);
+  tree_->Branch("reco.gamma_hits_xwall",&Validation_.gamma_hits_xwall_);
+  tree_->Branch("reco.gamma_hits_gveto",&Validation_.gamma_hits_gveto_);
+  tree_->Branch("reco.gamma_fractions_mainwall",&Validation_.gamma_fractions_mainwall_);
+  tree_->Branch("reco.gamma_fractions_xwall",&Validation_.gamma_fractions_xwall_);
+  tree_->Branch("reco.gamma_fractions_gveto",&Validation_.gamma_fractions_gveto_);
 
   // Truth quantities (only applicable to simulation)
-  tree_->Branch("true.highest_primary_energy",&sensitivity_.true_highest_primary_energy_);
-  tree_->Branch("true.second_primary_energy",&sensitivity_.true_second_primary_energy_);
-  tree_->Branch("true.higher_particle_type",&sensitivity_.true_higher_particle_type_);
-  tree_->Branch("true.lower_particle_type",&sensitivity_.true_lower_particle_type_);
-  tree_->Branch("true.total_energy",&sensitivity_.true_total_energy_);
-  tree_->Branch("true.vertex_x",&sensitivity_.true_vertex_x_);
-  tree_->Branch("true.vertex_y",&sensitivity_.true_vertex_y_);
-  tree_->Branch("true.vertex_z",&sensitivity_.true_vertex_z_);
+  tree_->Branch("true.highest_primary_energy",&Validation_.true_highest_primary_energy_);
+  tree_->Branch("true.second_primary_energy",&Validation_.true_second_primary_energy_);
+  tree_->Branch("true.higher_particle_type",&Validation_.true_higher_particle_type_);
+  tree_->Branch("true.lower_particle_type",&Validation_.true_lower_particle_type_);
+  tree_->Branch("true.total_energy",&Validation_.true_total_energy_);
+  tree_->Branch("true.vertex_x",&Validation_.true_vertex_x_);
+  tree_->Branch("true.vertex_y",&Validation_.true_vertex_y_);
+  tree_->Branch("true.vertex_z",&Validation_.true_vertex_z_);
 
   
   this->_set_initialized(true);
 }
-//! [SensitivityModule::Process]
+//! [ValidationModule::Process]
 dpp::base_module::process_status
-SensitivityModule::process(datatools::things& workItem) {
+ValidationModule::process(datatools::things& workItem) {
   
   
   // internal variables to mimic the ntuple variables, names are same but in camel case
@@ -610,21 +610,21 @@ SensitivityModule::process(datatools::things& workItem) {
   ResetVars();
   
   // Cuts pass/fail
-  sensitivity_.passes_two_calorimeters_ = passesTwoCalorimeters;
-  sensitivity_.passes_two_plus_calos_ = passesTwoPlusCalos;
-  sensitivity_.passes_two_clusters_ = passesTwoClusters;
-  sensitivity_.passes_two_tracks_ = passesTwoTracks;
-  sensitivity_.passes_associated_calorimeters_ = passesAssociatedCalorimeters;
-  sensitivity_.number_of_electrons_=electronCandidates.size();
-  sensitivity_.electron_energies_=electronEnergies;
-  sensitivity_.gamma_energies_=gammaEnergies;
-  sensitivity_.electron_charges_=electronCharges;
+  Validation_.passes_two_calorimeters_ = passesTwoCalorimeters;
+  Validation_.passes_two_plus_calos_ = passesTwoPlusCalos;
+  Validation_.passes_two_clusters_ = passesTwoClusters;
+  Validation_.passes_two_tracks_ = passesTwoTracks;
+  Validation_.passes_associated_calorimeters_ = passesAssociatedCalorimeters;
+  Validation_.number_of_electrons_=electronCandidates.size();
+  Validation_.electron_energies_=electronEnergies;
+  Validation_.gamma_energies_=gammaEnergies;
+  Validation_.electron_charges_=electronCharges;
 
 
   // Reconstructed energies
-  sensitivity_.lower_electron_energy_=lowerElectronEnergy;
-  sensitivity_.higher_electron_energy_=higherElectronEnergy;
-  sensitivity_.total_calorimeter_energy_ = totalCalorimeterEnergy;
+  Validation_.lower_electron_energy_=lowerElectronEnergy;
+  Validation_.higher_electron_energy_=higherElectronEnergy;
+  Validation_.total_calorimeter_energy_ = totalCalorimeterEnergy;
 
   // Unassociated calorimeter energy is the total energy of the gammas
   double unassociatedEnergy=0.;
@@ -633,7 +633,7 @@ SensitivityModule::process(datatools::things& workItem) {
     unassociatedEnergy += gammaEnergies.at(i);
   }
   
-  sensitivity_.unassociated_calorimeter_energy_ = unassociatedEnergy;
+  Validation_.unassociated_calorimeter_energy_ = unassociatedEnergy;
   
   // "First" track is the higher energy one
   //uint highEnergyIndex =(calorimeterEnergy[0]>calorimeterEnergy[1] ? 0:1);
@@ -646,28 +646,28 @@ SensitivityModule::process(datatools::things& workItem) {
   
   for (int i=0;i<electronVertices.size();i++)
   {
-    sensitivity_.electron_vertex_x_.push_back(electronVertices.at(i).X());
-    sensitivity_.electron_vertex_y_.push_back(electronVertices.at(i).Y());
-    sensitivity_.electron_vertex_z_.push_back(electronVertices.at(i).Z());
-    sensitivity_.electron_proj_vertex_x_.push_back(electronProjVertices.at(i).X());
-    sensitivity_.electron_proj_vertex_y_.push_back(electronProjVertices.at(i).Y());
-    sensitivity_.electron_proj_vertex_z_.push_back(electronProjVertices.at(i).Z());
-    sensitivity_.electron_dir_x_.push_back(electronDirections.at(i).X());
-    sensitivity_.electron_dir_y_.push_back(electronDirections.at(i).Y());
-    sensitivity_.electron_dir_z_.push_back(electronDirections.at(i).Z());
+    Validation_.electron_vertex_x_.push_back(electronVertices.at(i).X());
+    Validation_.electron_vertex_y_.push_back(electronVertices.at(i).Y());
+    Validation_.electron_vertex_z_.push_back(electronVertices.at(i).Z());
+    Validation_.electron_proj_vertex_x_.push_back(electronProjVertices.at(i).X());
+    Validation_.electron_proj_vertex_y_.push_back(electronProjVertices.at(i).Y());
+    Validation_.electron_proj_vertex_z_.push_back(electronProjVertices.at(i).Z());
+    Validation_.electron_dir_x_.push_back(electronDirections.at(i).X());
+    Validation_.electron_dir_y_.push_back(electronDirections.at(i).Y());
+    Validation_.electron_dir_z_.push_back(electronDirections.at(i).Z());
   }
 
   for (int i=0;i<alphaVertices.size();i++)
   {
-    sensitivity_.alpha_vertex_x_.push_back(alphaVertices.at(i).X());
-    sensitivity_.alpha_vertex_y_.push_back(alphaVertices.at(i).Y());
-    sensitivity_.alpha_vertex_z_.push_back(alphaVertices.at(i).Z());
-    sensitivity_.alpha_proj_vertex_x_.push_back(alphaProjVertices.at(i).X());
-    sensitivity_.alpha_proj_vertex_y_.push_back(alphaProjVertices.at(i).Y());
-    sensitivity_.alpha_proj_vertex_z_.push_back(alphaProjVertices.at(i).Z());
-    sensitivity_.alpha_dir_x_.push_back(alphaDirections.at(i).X());
-    sensitivity_.alpha_dir_y_.push_back(alphaDirections.at(i).Y());
-    sensitivity_.alpha_dir_z_.push_back(alphaDirections.at(i).Z());
+    Validation_.alpha_vertex_x_.push_back(alphaVertices.at(i).X());
+    Validation_.alpha_vertex_y_.push_back(alphaVertices.at(i).Y());
+    Validation_.alpha_vertex_z_.push_back(alphaVertices.at(i).Z());
+    Validation_.alpha_proj_vertex_x_.push_back(alphaProjVertices.at(i).X());
+    Validation_.alpha_proj_vertex_y_.push_back(alphaProjVertices.at(i).Y());
+    Validation_.alpha_proj_vertex_z_.push_back(alphaProjVertices.at(i).Z());
+    Validation_.alpha_dir_x_.push_back(alphaDirections.at(i).X());
+    Validation_.alpha_dir_y_.push_back(alphaDirections.at(i).Y());
+    Validation_.alpha_dir_z_.push_back(alphaDirections.at(i).Z());
   }
   
   // Special vertex variables
@@ -675,30 +675,30 @@ SensitivityModule::process(datatools::things& workItem) {
     // At the moment we only set these for these two topologies. This should possibly change
   {
     //First  vertex is the high-energy electron for 2e or the only electron for 1e1alpha
-    sensitivity_.first_proj_vertex_y_ = electronProjVertices.at(0).Y();
-    sensitivity_.first_proj_vertex_z_ = electronProjVertices.at(0).Z();
-    sensitivity_.first_vertex_x_ = electronVertices.at(0).X();
-    sensitivity_.first_vertex_y_ = electronVertices.at(0).Y();
-    sensitivity_.first_vertex_z_ = electronVertices.at(0).Z();
-    sensitivity_.first_track_direction_x_= electronDirections.at(0).X();
-    sensitivity_.first_track_direction_y_= electronDirections.at(0).Y();
-    sensitivity_.first_track_direction_z_= electronDirections.at(0).Z();
+    Validation_.first_proj_vertex_y_ = electronProjVertices.at(0).Y();
+    Validation_.first_proj_vertex_z_ = electronProjVertices.at(0).Z();
+    Validation_.first_vertex_x_ = electronVertices.at(0).X();
+    Validation_.first_vertex_y_ = electronVertices.at(0).Y();
+    Validation_.first_vertex_z_ = electronVertices.at(0).Z();
+    Validation_.first_track_direction_x_= electronDirections.at(0).X();
+    Validation_.first_track_direction_y_= electronDirections.at(0).Y();
+    Validation_.first_track_direction_z_= electronDirections.at(0).Z();
     projectionDistanceXY=(electronVertices.at(0)-electronProjVertices.at(0)).Perp();
   }
   if (is2electron ) // The second one is the lower-energy electron
   {
-    sensitivity_.second_proj_vertex_y_ = electronProjVertices.at(1).Y();
-    sensitivity_.second_proj_vertex_z_ = electronProjVertices.at(1).Z();
-    sensitivity_.second_vertex_x_ = electronVertices.at(1).X();
-    sensitivity_.second_vertex_y_ = electronVertices.at(1).Y();
-    sensitivity_.second_vertex_z_ = electronVertices.at(1).Z();
-    sensitivity_.second_track_direction_x_= electronDirections.at(1).X();
-    sensitivity_.second_track_direction_y_= electronDirections.at(1).Y();
-    sensitivity_.second_track_direction_z_= electronDirections.at(1).Z();
+    Validation_.second_proj_vertex_y_ = electronProjVertices.at(1).Y();
+    Validation_.second_proj_vertex_z_ = electronProjVertices.at(1).Z();
+    Validation_.second_vertex_x_ = electronVertices.at(1).X();
+    Validation_.second_vertex_y_ = electronVertices.at(1).Y();
+    Validation_.second_vertex_z_ = electronVertices.at(1).Z();
+    Validation_.second_track_direction_x_= electronDirections.at(1).X();
+    Validation_.second_track_direction_y_= electronDirections.at(1).Y();
+    Validation_.second_track_direction_z_= electronDirections.at(1).Z();
     
-    sensitivity_.vertex_separation_= (electronVertices.at(0) - electronVertices.at(1)).Mag();
-    sensitivity_.foil_projection_separation_= (electronProjVertices.at(0) - electronProjVertices.at(1)).Mag();
-    sensitivity_.angle_between_tracks_= electronDirections.at(0).Angle(electronDirections.at(1));
+    Validation_.vertex_separation_= (electronVertices.at(0) - electronVertices.at(1)).Mag();
+    Validation_.foil_projection_separation_= (electronProjVertices.at(0) - electronProjVertices.at(1)).Mag();
+    Validation_.angle_between_tracks_= electronDirections.at(0).Angle(electronDirections.at(1));
     
     double thisProjectionDistance=(electronVertices.at(1)-electronProjVertices.at(1)).Perp();
     if (thisProjectionDistance > projectionDistanceXY)projectionDistanceXY=thisProjectionDistance;
@@ -706,24 +706,24 @@ SensitivityModule::process(datatools::things& workItem) {
 
   if(is1e1alpha)
   {
-    sensitivity_.alpha_track_length_=alphaCandidateDetails.at(0).GetTrackLength();
-    sensitivity_.proj_track_length_alpha_=alphaCandidateDetails.at(0).GetProjectedTrackLength();
-    sensitivity_.alpha_crosses_foil_=alphaCandidateDetails.at(0).TrackCrossesFoil();
+    Validation_.alpha_track_length_=alphaCandidateDetails.at(0).GetTrackLength();
+    Validation_.proj_track_length_alpha_=alphaCandidateDetails.at(0).GetProjectedTrackLength();
+    Validation_.alpha_crosses_foil_=alphaCandidateDetails.at(0).TrackCrossesFoil();
 
     // Second vertex is the alpha
-    sensitivity_.second_proj_vertex_y_=alphaCandidateDetails.at(0).GetProjectedVertex().Y();
-    sensitivity_.second_proj_vertex_z_=alphaCandidateDetails.at(0).GetProjectedVertex().Z();
-    sensitivity_.second_vertex_x_= alphaVertices.at(0).X();
-    sensitivity_.second_vertex_y_= alphaVertices.at(0).Y();
-    sensitivity_.second_vertex_z_= alphaVertices.at(0).Z();
-    sensitivity_.second_track_direction_x_= alphaDirections.at(0).X();
-    sensitivity_.second_track_direction_y_= alphaDirections.at(0).Y();
-    sensitivity_.second_track_direction_z_= alphaDirections.at(0).Z();
+    Validation_.second_proj_vertex_y_=alphaCandidateDetails.at(0).GetProjectedVertex().Y();
+    Validation_.second_proj_vertex_z_=alphaCandidateDetails.at(0).GetProjectedVertex().Z();
+    Validation_.second_vertex_x_= alphaVertices.at(0).X();
+    Validation_.second_vertex_y_= alphaVertices.at(0).Y();
+    Validation_.second_vertex_z_= alphaVertices.at(0).Z();
+    Validation_.second_track_direction_x_= alphaDirections.at(0).X();
+    Validation_.second_track_direction_y_= alphaDirections.at(0).Y();
+    Validation_.second_track_direction_z_= alphaDirections.at(0).Z();
     
       // Some two-particle topology calculations
-    sensitivity_.vertex_separation_=(electronVertices.at(0) - alphaVertices.at(0)).Mag();
-    sensitivity_.foil_projection_separation_= (electronProjVertices.at(0) - alphaCandidateDetails.at(0).GetProjectedVertex()).Mag();
-    sensitivity_.angle_between_tracks_= electronDirections.at(0).Angle(alphaDirections.at(0));
+    Validation_.vertex_separation_=(electronVertices.at(0) - alphaVertices.at(0)).Mag();
+    Validation_.foil_projection_separation_= (electronProjVertices.at(0) - alphaCandidateDetails.at(0).GetProjectedVertex()).Mag();
+    Validation_.angle_between_tracks_= electronDirections.at(0).Angle(alphaDirections.at(0));
     
     double thisProjectionDistance=(alphaVertices.at(0)-alphaProjVertices.at(0)).Perp();
     if (thisProjectionDistance > projectionDistanceXY)projectionDistanceXY=thisProjectionDistance;
@@ -733,70 +733,70 @@ SensitivityModule::process(datatools::things& workItem) {
   // Track direction
   if (is2electron || is1e1alpha) // This works in either case
     {
-      sensitivity_.same_side_of_foil_= ((sensitivity_.first_track_direction_x_ * sensitivity_.second_track_direction_x_) > 0); // X components both positive or both negative
+      Validation_.same_side_of_foil_= ((Validation_.first_track_direction_x_ * Validation_.second_track_direction_x_) > 0); // X components both positive or both negative
     }
   // Vertices
-  sensitivity_.vertices_on_foil_=verticesOnFoil;
+  Validation_.vertices_on_foil_=verticesOnFoil;
   
   
-  sensitivity_.projection_distance_xy_=projectionDistanceXY;
-  sensitivity_.foil_alpha_count_=foilAlphaCount;
-  sensitivity_.electrons_from_foil_=electronsFromFoil;
-  sensitivity_.electron_track_lengths_=electronTrackLengths;
-  sensitivity_.electron_hit_counts_=electronHitCounts;
+  Validation_.projection_distance_xy_=projectionDistanceXY;
+  Validation_.foil_alpha_count_=foilAlphaCount;
+  Validation_.electrons_from_foil_=electronsFromFoil;
+  Validation_.electron_track_lengths_=electronTrackLengths;
+  Validation_.electron_hit_counts_=electronHitCounts;
   
  
   // Timing
-  sensitivity_.calo_hit_time_separation_=TMath::Abs(timeDelay);
-  sensitivity_.delayed_track_time_= &trajClDelayedTime;
-  sensitivity_.internal_probability_=internalProbability;
-  sensitivity_.external_probability_=externalProbability;
-  sensitivity_.foil_projected_internal_probability_=foilProjectedInternalProbability;
-  sensitivity_.foil_projected_external_probability_=foilProjectedExternalProbability;
+  Validation_.calo_hit_time_separation_=TMath::Abs(timeDelay);
+  Validation_.delayed_track_time_= &trajClDelayedTime;
+  Validation_.internal_probability_=internalProbability;
+  Validation_.external_probability_=externalProbability;
+  Validation_.foil_projected_internal_probability_=foilProjectedInternalProbability;
+  Validation_.foil_projected_external_probability_=foilProjectedExternalProbability;
 
   // Topology
 
 
-  sensitivity_.topology_1engamma_=is1engamma;
-  sensitivity_.topology_1e1gamma_=is1e1gamma;
-  sensitivity_.topology_1e1alpha_=is1e1alpha;
-  sensitivity_.topology_2e_=is2electron;
-  sensitivity_.topology_1e_=is1electron;
+  Validation_.topology_1engamma_=is1engamma;
+  Validation_.topology_1e1gamma_=is1e1gamma;
+  Validation_.topology_1e1alpha_=is1e1alpha;
+  Validation_.topology_2e_=is2electron;
+  Validation_.topology_1e_=is1electron;
   
 
   // Calorimeter walls: fractions of energy in each and vector of booleans
   // to say whether there are any hits in that wall
-  sensitivity_.gamma_fractions_mainwall_ =  gammaMainwallFraction;
-  sensitivity_.gamma_fractions_xwall_ = gammaXwallFraction;
-  sensitivity_.gamma_fractions_gveto_ = gammaVetoFraction;
-  PopulateWallVectors(electronCaloType, sensitivity_.electron_hits_mainwall_, sensitivity_.electron_hits_xwall_,  sensitivity_.electron_hits_gveto_ );
-  PopulateWallVectors(gammaCaloType, sensitivity_.gamma_hits_mainwall_, sensitivity_.gamma_hits_xwall_,  sensitivity_.gamma_hits_gveto_ );
+  Validation_.gamma_fractions_mainwall_ =  gammaMainwallFraction;
+  Validation_.gamma_fractions_xwall_ = gammaXwallFraction;
+  Validation_.gamma_fractions_gveto_ = gammaVetoFraction;
+  PopulateWallVectors(electronCaloType, Validation_.electron_hits_mainwall_, Validation_.electron_hits_xwall_,  Validation_.electron_hits_gveto_ );
+  PopulateWallVectors(gammaCaloType, Validation_.gamma_hits_mainwall_, Validation_.gamma_hits_xwall_,  Validation_.gamma_hits_gveto_ );
 
   // Debug information
-  sensitivity_.calorimeter_hit_count_=caloHitCount;
-  sensitivity_.geiger_hit_count_=geigerHitCount;
-  sensitivity_.small_cluster_count_=smallClusterCount;
-  sensitivity_.cluster_count_=clusterCount;
-  sensitivity_.highest_gamma_energy_=  highestGammaEnergy;
-  sensitivity_.edgemost_vertex_=edgemostVertex;
-  sensitivity_.number_of_gammas_=gammaCandidates.size();
-  sensitivity_.track_count_=trackCount;
-  sensitivity_.negative_track_count_=negativeTrackCount;
-  sensitivity_.positive_track_count_=positiveTrackCount;
-  sensitivity_.associated_track_count_=electronCandidates.size();
-  sensitivity_.alpha_count_=alphaCandidates.size();
-  sensitivity_.delayed_cluster_hit_count_=delayedClusterHitCount;
-  sensitivity_.delayed_hit_count_=delayedHitCount;
+  Validation_.calorimeter_hit_count_=caloHitCount;
+  Validation_.geiger_hit_count_=geigerHitCount;
+  Validation_.small_cluster_count_=smallClusterCount;
+  Validation_.cluster_count_=clusterCount;
+  Validation_.highest_gamma_energy_=  highestGammaEnergy;
+  Validation_.edgemost_vertex_=edgemostVertex;
+  Validation_.number_of_gammas_=gammaCandidates.size();
+  Validation_.track_count_=trackCount;
+  Validation_.negative_track_count_=negativeTrackCount;
+  Validation_.positive_track_count_=positiveTrackCount;
+  Validation_.associated_track_count_=electronCandidates.size();
+  Validation_.alpha_count_=alphaCandidates.size();
+  Validation_.delayed_cluster_hit_count_=delayedClusterHitCount;
+  Validation_.delayed_hit_count_=delayedHitCount;
   
   // Truth info, simulation only
-  sensitivity_.true_highest_primary_energy_=higherTrueEnergy;
-  sensitivity_.true_second_primary_energy_=lowerTrueEnergy;
-  sensitivity_.true_total_energy_= totalTrueEnergy;
-  sensitivity_.true_higher_particle_type_=higherTrueType;
-  sensitivity_.true_lower_particle_type_=lowerTrueType;
-  sensitivity_.true_vertex_x_=trueVertexX;
-  sensitivity_.true_vertex_y_=trueVertexY;
-  sensitivity_.true_vertex_z_=trueVertexZ;
+  Validation_.true_highest_primary_energy_=higherTrueEnergy;
+  Validation_.true_second_primary_energy_=lowerTrueEnergy;
+  Validation_.true_total_energy_= totalTrueEnergy;
+  Validation_.true_higher_particle_type_=higherTrueType;
+  Validation_.true_lower_particle_type_=lowerTrueType;
+  Validation_.true_vertex_x_=trueVertexX;
+  Validation_.true_vertex_y_=trueVertexY;
+  Validation_.true_vertex_z_=trueVertexZ;
   
   tree_->Fill();
   
@@ -804,7 +804,7 @@ SensitivityModule::process(datatools::things& workItem) {
   return dpp::base_module::PROCESS_OK;
 }
 
-void SensitivityModule::CalculateProbabilities(double &internalProbability, double &externalProbability, std::vector<TrackDetails*> twoParticles, bool projected)
+void ValidationModule::CalculateProbabilities(double &internalProbability, double &externalProbability, std::vector<TrackDetails*> twoParticles, bool projected)
 {
     double trackLengths[2];
     double theoreticalTimeOfFlight[2];
@@ -847,7 +847,7 @@ void SensitivityModule::CalculateProbabilities(double &internalProbability, doub
 }
                              
 // Calculate probabilities for an internal (both particles from the foil) and external (calo 1 -> foil -> calo 2) topology
-void SensitivityModule::CalculateProbabilities(double &internalProbability, double &externalProbability, double *calorimeterEnergies,  double *betas, double *trackLengths, double *calorimeterTimes, double *totalTimeVariances )
+void ValidationModule::CalculateProbabilities(double &internalProbability, double &externalProbability, double *calorimeterEnergies,  double *betas, double *trackLengths, double *calorimeterTimes, double *totalTimeVariances )
 {
   double theoreticalTimeOfFlight[2];
   double internalEmissionTime[2];
@@ -882,7 +882,7 @@ void SensitivityModule::CalculateProbabilities(double &internalProbability, doub
 // If you pick a position past the end of the vector, stick it on the end
 // Position of -1 also sticks it at the end
 template <typename T>
-void SensitivityModule::InsertAt(T toInsert, std::vector<T> &vec, int position)
+void ValidationModule::InsertAt(T toInsert, std::vector<T> &vec, int position)
 {
   if (position>vec.size() || position==-1 )
   {
@@ -898,7 +898,7 @@ void SensitivityModule::InsertAt(T toInsert, std::vector<T> &vec, int position)
 }
 
 // Fill in the 3 vectors of wall booleans based on the calo wall that got the first hit
-void SensitivityModule::PopulateWallVectors(std::vector<int> &calotypes, std::vector<bool> &mainVec, std::vector<bool> &xVec, std::vector<bool> &vetoVec)
+void ValidationModule::PopulateWallVectors(std::vector<int> &calotypes, std::vector<bool> &mainVec, std::vector<bool> &xVec, std::vector<bool> &vetoVec)
 {
   mainVec.clear();
   xVec.clear();
@@ -913,7 +913,7 @@ void SensitivityModule::PopulateWallVectors(std::vector<int> &calotypes, std::ve
 
 
 // Find the position to insert a value into a sorted vector
-int SensitivityModule::InsertAndGetPosition(double toInsert, std::vector<double> &vec, bool highestFirst)
+int ValidationModule::InsertAndGetPosition(double toInsert, std::vector<double> &vec, bool highestFirst)
 {
   std::vector<double>::iterator it;
   int len=vec.size();
@@ -932,7 +932,7 @@ int SensitivityModule::InsertAndGetPosition(double toInsert, std::vector<double>
 }
 
 // Convert a chi-squared value to a probability by integrating the chi square distribution up to that limit
-double SensitivityModule::ProbabilityFromChiSquared(double chiSquared)
+double ValidationModule::ProbabilityFromChiSquared(double chiSquared)
 {
   // To get probability from a chi squared value, integrate distribution to our chisq limit
   // We have one degree of freedom
@@ -947,56 +947,56 @@ double SensitivityModule::ProbabilityFromChiSquared(double chiSquared)
 }
 
 
-void SensitivityModule::ResetVars()
+void ValidationModule::ResetVars()
 {
-  sensitivity_.electron_track_lengths_.clear();
-  sensitivity_.electron_vertex_x_.clear();
-  sensitivity_.electron_vertex_y_.clear();
-  sensitivity_.electron_vertex_z_.clear();
-  sensitivity_.electron_proj_vertex_x_.clear();
-  sensitivity_.electron_proj_vertex_y_.clear();
-  sensitivity_.electron_proj_vertex_z_.clear();
-  sensitivity_.electron_dir_x_.clear();
-  sensitivity_.electron_dir_y_.clear();
-  sensitivity_.electron_dir_z_.clear();
-  sensitivity_.alpha_vertex_x_.clear();
-  sensitivity_.alpha_vertex_y_.clear();
-  sensitivity_.alpha_vertex_z_.clear();
-  sensitivity_.alpha_proj_vertex_x_.clear();
-  sensitivity_.alpha_proj_vertex_y_.clear();
-  sensitivity_.alpha_proj_vertex_z_.clear();
-  sensitivity_.alpha_dir_x_.clear();
-  sensitivity_.alpha_dir_y_.clear();
-  sensitivity_.alpha_dir_z_.clear();
+  Validation_.electron_track_lengths_.clear();
+  Validation_.electron_vertex_x_.clear();
+  Validation_.electron_vertex_y_.clear();
+  Validation_.electron_vertex_z_.clear();
+  Validation_.electron_proj_vertex_x_.clear();
+  Validation_.electron_proj_vertex_y_.clear();
+  Validation_.electron_proj_vertex_z_.clear();
+  Validation_.electron_dir_x_.clear();
+  Validation_.electron_dir_y_.clear();
+  Validation_.electron_dir_z_.clear();
+  Validation_.alpha_vertex_x_.clear();
+  Validation_.alpha_vertex_y_.clear();
+  Validation_.alpha_vertex_z_.clear();
+  Validation_.alpha_proj_vertex_x_.clear();
+  Validation_.alpha_proj_vertex_y_.clear();
+  Validation_.alpha_proj_vertex_z_.clear();
+  Validation_.alpha_dir_x_.clear();
+  Validation_.alpha_dir_y_.clear();
+  Validation_.alpha_dir_z_.clear();
   
   // And initialize the rest, what a drag
-  sensitivity_.first_proj_vertex_y_ = -9999;
-  sensitivity_.first_proj_vertex_z_ = -9999;
-  sensitivity_.first_vertex_x_ = -9999;
-  sensitivity_.first_vertex_y_ = -9999;
-  sensitivity_.first_vertex_z_ = -9999;
-  sensitivity_.first_track_direction_x_= -9999;
-  sensitivity_.first_track_direction_y_= -9999;
-  sensitivity_.first_track_direction_z_= -9999;
-  sensitivity_.second_proj_vertex_y_ = -9999;
-  sensitivity_.second_proj_vertex_z_ = -9999;
-  sensitivity_.second_vertex_x_ = -9999;
-  sensitivity_.second_vertex_y_ = -9999;
-  sensitivity_.second_vertex_z_ = -9999;
-  sensitivity_.second_track_direction_x_= -9999;
-  sensitivity_.second_track_direction_y_= -9999;
-  sensitivity_.second_track_direction_z_= -9999;
-  sensitivity_.vertex_separation_= -9999;
-  sensitivity_.foil_projection_separation_= -9999;
-  sensitivity_.angle_between_tracks_= -9999;
-  sensitivity_.alpha_track_length_=-9999;
-  sensitivity_.proj_track_length_alpha_=-9999;
-  sensitivity_.alpha_crosses_foil_=false;
+  Validation_.first_proj_vertex_y_ = -9999;
+  Validation_.first_proj_vertex_z_ = -9999;
+  Validation_.first_vertex_x_ = -9999;
+  Validation_.first_vertex_y_ = -9999;
+  Validation_.first_vertex_z_ = -9999;
+  Validation_.first_track_direction_x_= -9999;
+  Validation_.first_track_direction_y_= -9999;
+  Validation_.first_track_direction_z_= -9999;
+  Validation_.second_proj_vertex_y_ = -9999;
+  Validation_.second_proj_vertex_z_ = -9999;
+  Validation_.second_vertex_x_ = -9999;
+  Validation_.second_vertex_y_ = -9999;
+  Validation_.second_vertex_z_ = -9999;
+  Validation_.second_track_direction_x_= -9999;
+  Validation_.second_track_direction_y_= -9999;
+  Validation_.second_track_direction_z_= -9999;
+  Validation_.vertex_separation_= -9999;
+  Validation_.foil_projection_separation_= -9999;
+  Validation_.angle_between_tracks_= -9999;
+  Validation_.alpha_track_length_=-9999;
+  Validation_.proj_track_length_alpha_=-9999;
+  Validation_.alpha_crosses_foil_=false;
 
 }
 
-//! [SensitivityModule::reset]
-void SensitivityModule::reset() {
+//! [ValidationModule::reset]
+void ValidationModule::reset() {
   hfile_->cd();
   tree_->Write();
   hfile_->Close(); //
@@ -1004,7 +1004,7 @@ void SensitivityModule::reset() {
 
   // clean up
   delete hfile_;
-  filename_output_ = "sensitivity.root";
+  filename_output_ = "Validation.root";
   this->_set_initialized(false);
 
 }

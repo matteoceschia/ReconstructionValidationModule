@@ -1,4 +1,4 @@
-//! \file    SensitivityModule.h
+//! \file    ValidationModule.h
 //! \brief   Example processing module for flreconstruct
 //! \details Process a things object
 #ifndef TESTMODULE_HH
@@ -33,7 +33,7 @@
 // From this application
 #include "TrackDetails.h"
 
-typedef struct SensitivityEventStorage{
+typedef struct ValidationEventStorage{
   bool passes_two_calorimeters_;
   bool passes_two_plus_calos_;
   bool passes_two_clusters_;
@@ -171,17 +171,17 @@ typedef struct SensitivityEventStorage{
   double true_vertex_y_;
   double true_vertex_z_;
   
-}sensitivityeventstorage;
+}Validationeventstorage;
 
 
 // This Project
-class SensitivityModule : public dpp::base_module {
+class ValidationModule : public dpp::base_module {
   static const uint minHitsInCluster=3;
  public:
   //! Construct module
-  SensitivityModule();
+  ValidationModule();
   //! Destructor
-  virtual ~SensitivityModule();
+  virtual ~ValidationModule();
   //! Configure the module
   virtual void initialize(const datatools::properties& myConfig,
                           datatools::service_manager& flServices,
@@ -193,7 +193,7 @@ class SensitivityModule : public dpp::base_module {
  private:
   TFile* hfile_;
   TTree* tree_;
-  SensitivityEventStorage sensitivity_;
+  ValidationEventStorage Validation_;
 
   // configurable data member
   std::string filename_output_;
@@ -213,7 +213,7 @@ class SensitivityModule : public dpp::base_module {
 
   // Macro which automatically creates the interface needed
   // to enable the module to be loaded at runtime
-  DPP_MODULE_REGISTRATION_INTERFACE(SensitivityModule);
+  DPP_MODULE_REGISTRATION_INTERFACE(ValidationModule);
 };
 #endif // TESTMODULE_HH
 

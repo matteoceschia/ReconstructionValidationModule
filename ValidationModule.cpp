@@ -49,19 +49,20 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   tree_->SetDirectory(hfile_);
  
   // Some basic counts
-  tree_->Branch("reco.calorimeter_hit_count",&Validation_.calorimeter_hit_count_);
-  tree_->Branch("reco.cluster_count",&Validation_.cluster_count_);
-  tree_->Branch("reco.track_count",&Validation_.track_count_);
-  tree_->Branch("reco.negative_track_count",&Validation_.negative_track_count_);
-  tree_->Branch("reco.positive_track_count",&Validation_.positive_track_count_);
-  tree_->Branch("reco.associated_track_count",&Validation_.associated_track_count_);
-  tree_->Branch("reco.geiger_hit_count",&Validation_.geiger_hit_count_);
-  tree_->Branch("reco.all_track_hit_counts",&Validation_.all_track_hit_counts_);
+  tree_->Branch("calorimeter_hit_count",&validation_.calorimeter_hit_count_);
+  tree_->Branch("cluster_count",&validation_.cluster_count_);
+  tree_->Branch("track_count",&validation_.track_count_);
+  tree_->Branch("negative_track_count",&validation_.negative_track_count_);
+  tree_->Branch("positive_track_count",&validation_.positive_track_count_);
+  tree_->Branch("associated_track_count",&validation_.associated_track_count_);
+  tree_->Branch("geiger_hit_count",&validation_.geiger_hit_count_);
+  tree_->Branch("all_track_hit_counts",&validation_.all_track_hit_counts_);
   
   // Energies and calo times
-  tree_->Branch("reco.total_calorimeter_energy",&Validation_.total_calorimeter_energy_);
-  tree_->Branch("reco.unassociated_calorimeter_energy",&Validation_.unassociated_calorimeter_energy_);
-  tree_->Branch("reco.calo_hit_time_separation",&Validation_.calo_hit_time_separation_);
+  tree_->Branch("total_calorimeter_energy",&validation_.total_calorimeter_energy_);
+  tree_->Branch("unassociated_calorimeter_energy",&validation_.unassociated_calorimeter_energy_);
+  tree_->Branch("associated_calorimeter_energy",&validation_.associated_calorimeter_energy_);
+  tree_->Branch("calo_hit_time_separation",&validation_.calo_hit_time_separation_);
   
   this->_set_initialized(true);
 }
@@ -72,6 +73,7 @@ ValidationModule::process(datatools::things& workItem) {
   
   // declare internal variables to mimic the ntuple variables, names are same but in camel case
   double totalCalorimeterEnergy=0;
+  double unassociatedEnergy=0;
   double timeDelay=-1;
   int clusterCount=0;
   int trackCount=0;
@@ -170,23 +172,51 @@ ValidationModule::process(datatools::things& workItem) {
       {
 
         snemo::datamodel::particle_track track=trackData.get_particle(iParticle);
-        
-        // Basic debug info for any track
-        if (track.get_charge()==snemo::datamodel::particle_track::NEGATIVE)
+        switch (track.get_charge())
         {
-          negativeTrackCount++;
-          trackCount++;
+            // Track count, positive and negative track count
+          case snemo::datamodel::particle_track::NEGATIVE:
+          {
+            negativeTrackCount++;
+            trackCount++;
+            break;
+          }
+          case snemo::datamodel::particle_track::POSITIVE:
+          {
+            positiveTrackCount++;
+            trackCount++;
+            break;
+          }
+          case snemo::datamodel::particle_track::UNDEFINED:
+          {
+            trackCount++;
+            break;
+          }
+          case snemo::datamodel::particle_track::NEUTRAL:
+          {
+            for (unsigned int hit=0; hit<track.get_associated_calorimeter_hits().size();++hit)
+            {
+              const snemo::datamodel::calibrated_calorimeter_hit & calo_hit = track.get_associated_calorimeter_hits().at(hit).get();
+              unassociatedEnergy+=calo_hit.get_energy();
+            }
+            continue;
+          }
+          default:
+            continue;
         }
-        if (track.get_charge()==snemo::datamodel::particle_track::POSITIVE)
+        // Number of tracker hits
+        const snemo::datamodel::tracker_trajectory & the_trajectory = track.get_trajectory();
+        const snemo::datamodel::tracker_cluster & the_cluster = the_trajectory.get_cluster();
+        int numHits = the_cluster.get_number_of_hits();
+        if (numHits>0)
         {
-          positiveTrackCount++;
-          trackCount++;
+          allTrackHitCounts.push_back(numHits); // Vector of hits per track
+          // Is the track associated to a calorimeter hit?
+          if (track.has_associated_calorimeter_hits())
+          {
+            associatedTrackCount++;
+          }
         }
-        if (track.get_charge()==snemo::datamodel::particle_track::UNDEFINED)
-        {
-          trackCount++;
-        }
-        else continue;
       }
     }
   }// end try on PTD bank
@@ -198,33 +228,29 @@ ValidationModule::process(datatools::things& workItem) {
   
   // Initialise variables that might not otherwise get set
   // It does not restart the vector for each entry so we have to do that manually
-  ResetVars();
 
-  Validation_.total_calorimeter_energy_ = totalCalorimeterEnergy;
+
+  validation_.total_calorimeter_energy_ = totalCalorimeterEnergy;
 
   // Unassociated calorimeter energy is the total energy of the gammas
-  double unassociatedEnergy=0.;
-//  for (int i=0; i<gammaEnergies.size();i++)
-//  {
-//    unassociatedEnergy += gammaEnergies.at(i);
-//  }
-//
-  Validation_.unassociated_calorimeter_energy_ = unassociatedEnergy;
+
+  validation_.unassociated_calorimeter_energy_ = unassociatedEnergy;
+  validation_.associated_calorimeter_energy_ = totalCalorimeterEnergy-unassociatedEnergy;
 
   // Timing
-  Validation_.calo_hit_time_separation_=TMath::Abs(timeDelay);
+  validation_.calo_hit_time_separation_=TMath::Abs(timeDelay);
 
-  // Debug information
-  Validation_.calorimeter_hit_count_=caloHitCount;
-  Validation_.geiger_hit_count_=geigerHitCount;
-  Validation_.cluster_count_=clusterCount;
-  Validation_.track_count_=trackCount;
-  Validation_.negative_track_count_=negativeTrackCount;
-  Validation_.positive_track_count_=positiveTrackCount;
-  //Validation_.associated_track_count_=electronCandidates.size();
+  // Counts
+  validation_.calorimeter_hit_count_=caloHitCount;
+  validation_.geiger_hit_count_=geigerHitCount;
+  validation_.cluster_count_=clusterCount;
+  validation_.track_count_=trackCount;
+  validation_.associated_track_count_=associatedTrackCount;
+  validation_.negative_track_count_=negativeTrackCount;
+  validation_.positive_track_count_=positiveTrackCount;
+  validation_.all_track_hit_counts_=allTrackHitCounts;
   
   tree_->Fill();
-  
   // MUST return a status, see ref dpp::processing_status_flags_type
   return dpp::base_module::PROCESS_OK;
 }
@@ -232,7 +258,7 @@ ValidationModule::process(datatools::things& workItem) {
 
 void ValidationModule::ResetVars()
 {
-
+  validation_.all_track_hit_counts_.clear();
 }
 
 //! [ValidationModule::reset]

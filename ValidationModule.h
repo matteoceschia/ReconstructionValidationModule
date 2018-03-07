@@ -43,6 +43,7 @@ typedef struct ValidationEventStorage{
   int geiger_hit_count_; // How many reconstructed tracker hits?
   std::vector<int> all_track_hit_counts_; // Vector of how many hits for ALL tracks (delayed or not)
   double unassociated_calorimeter_energy_; // Summed calorimeter energy not associated to any track (in MeV)
+  double associated_calorimeter_energy_; // Summed calorimeter energy associated to any track (in MeV)
   
 }Validationeventstorage;
 
@@ -66,7 +67,7 @@ class ValidationModule : public dpp::base_module {
  private:
   TFile* hfile_;
   TTree* tree_;
-  ValidationEventStorage Validation_;
+  ValidationEventStorage validation_;
 
   // configurable data member
   std::string filename_output_;

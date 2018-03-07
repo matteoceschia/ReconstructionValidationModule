@@ -71,5 +71,27 @@ filename_out : string[1] = "my_filename.root"
 
 ## Output tuple structure -
 
-**example_field** : Description of field
+**calorimeter_hit_count** : Total number of calorimeter hits
+
+**cluster_count** : Total number of clusters
+
+**track_count** : Total number of tracks (not including gamma 'tracks')
+
+**negative_track_count** : Tracks with negative charge (from curvature, assuming coming from foil)
+
+**positive_track_count** : Tracks with positive charge (from curvature, assuming coming from foil)
+
+**associated_track_count** : Number of tracks with associated calo hit
+
+**geiger_hit_count** : Total number of tracker hits
+
+**all_track_hit_counts** : Vector of the number of tracker hits in each individual track
+
+**total_calorimeter_energy** : Summed energy in all calorimeters (MeV)
+
+**unassociated_calorimeter_energy** : Summed energy in calorimeters not associated to tracks (considered to be gammas) (MeV)
+
+**associated_calorimeter_energy** : Summed calo energy associated to tracks (MeV)
+
+**calo_hit_time_separation** Time in ns between first and last calorimeter hits
 

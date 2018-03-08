@@ -1,8 +1,5 @@
 #include "ValidationModule.h"
-const double highEnergyLimit=0.150;// 150 keV
-const double lowEnergyLimit=0.050; // 50 keV
-const double electronMass=0.5109989461; // From pdg
-const double speedOfLight=299792458 * 1e-9 * 1000; // Millimeters per nanosecond
+const double LOW_ENERGY_LIMIT=0.050; // 50 keV
 
 int mainWallHitType=1302;
 int xWallHitType=1232;
@@ -50,6 +47,7 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
  
   // Some basic counts
   tree_->Branch("calorimeter_hit_count",&validation_.calorimeter_hit_count_);
+  tree_->Branch("calo_hits_over_threshold",&validation_.calo_hits_over_threshold_);
   tree_->Branch("cluster_count",&validation_.cluster_count_);
   tree_->Branch("track_count",&validation_.track_count_);
   tree_->Branch("negative_track_count",&validation_.negative_track_count_);
@@ -60,8 +58,11 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   
   // Energies and calo times
   tree_->Branch("total_calorimeter_energy",&validation_.total_calorimeter_energy_);
+  tree_->Branch("calo_energy_over_threshold",&validation_.calo_energy_over_threshold_);
   tree_->Branch("unassociated_calorimeter_energy",&validation_.unassociated_calorimeter_energy_);
   tree_->Branch("associated_calorimeter_energy",&validation_.associated_calorimeter_energy_);
+  tree_->Branch("unassociated_energy_over_threshold",&validation_.unassociated_energy_over_threshold_);
+  tree_->Branch("associated_energy_over_threshold",&validation_.associated_energy_over_threshold_);
   tree_->Branch("calo_hit_time_separation",&validation_.calo_hit_time_separation_);
   
   this->_set_initialized(true);
@@ -73,13 +74,16 @@ ValidationModule::process(datatools::things& workItem) {
   
   // declare internal variables to mimic the ntuple variables, names are same but in camel case
   double totalCalorimeterEnergy=0;
+  double energyOverThreshold=0;
   double unassociatedEnergy=0;
+  double unassocOverThreshold=0;
   double timeDelay=-1;
   int clusterCount=0;
   int trackCount=0;
   int alphaCount=0;
   int associatedTrackCount=0;
   int caloHitCount=0;
+  int nCalHitsOverLowLimit=0;
   double earliestCaloHit=-1.;
   double latestCaloHit=-1.;
   int geigerHitCount=0;
@@ -94,9 +98,6 @@ ValidationModule::process(datatools::things& workItem) {
   try {
     const snemo::datamodel::calibrated_data& calData = workItem.get<snemo::datamodel::calibrated_data>("CD");
 
-    int nCalorimeterHits=0;
-    int nCalHitsOverHighLimit=0;
-    int nCalHitsOverLowLimit=0;
     
     if (calData.has_calibrated_calorimeter_hits())
       {
@@ -105,7 +106,11 @@ ValidationModule::process(datatools::things& workItem) {
           const snemo::datamodel::calibrated_calorimeter_hit & calHit = iHit->get();
           double energy=calHit.get_energy() ;
           totalCalorimeterEnergy += energy;
-
+          if (energy > LOW_ENERGY_LIMIT)
+          {
+            energyOverThreshold +=energy;
+            ++nCalHitsOverLowLimit;
+          }
           double hitTime=calHit.get_time();
           if (hitTime > latestCaloHit)
           {
@@ -115,15 +120,11 @@ ValidationModule::process(datatools::things& workItem) {
           {
             earliestCaloHit=hitTime;
           }
-          
-          ++nCalorimeterHits;
-          if (energy>=highEnergyLimit)++nCalHitsOverHighLimit;
-          if (energy>=lowEnergyLimit)++nCalHitsOverLowLimit;
+          ++caloHitCount;
         }
       }
     
     timeDelay=latestCaloHit-earliestCaloHit;
-    caloHitCount=nCalHitsOverLowLimit;
 
       // Count all the tracker (Geiger) hits
       if (calData.has_calibrated_tracker_hits())
@@ -197,7 +198,12 @@ ValidationModule::process(datatools::things& workItem) {
             for (unsigned int hit=0; hit<track.get_associated_calorimeter_hits().size();++hit)
             {
               const snemo::datamodel::calibrated_calorimeter_hit & calo_hit = track.get_associated_calorimeter_hits().at(hit).get();
-              unassociatedEnergy+=calo_hit.get_energy();
+              double energy=calo_hit.get_energy();
+              unassociatedEnergy+=energy;
+              if (energy > LOW_ENERGY_LIMIT)
+              {
+                unassocOverThreshold += energy;
+              }
             }
             continue;
           }
@@ -225,23 +231,22 @@ ValidationModule::process(datatools::things& workItem) {
     return dpp::base_module::PROCESS_INVALID;
   } //end catch
 
-  
-  // Initialise variables that might not otherwise get set
-  // It does not restart the vector for each entry so we have to do that manually
-
-
   validation_.total_calorimeter_energy_ = totalCalorimeterEnergy;
+  validation_.calo_energy_over_threshold_ = energyOverThreshold;
 
   // Unassociated calorimeter energy is the total energy of the gammas
 
   validation_.unassociated_calorimeter_energy_ = unassociatedEnergy;
+  validation_.unassociated_energy_over_threshold_ = unassocOverThreshold;
   validation_.associated_calorimeter_energy_ = totalCalorimeterEnergy-unassociatedEnergy;
+  validation_.associated_energy_over_threshold_ = energyOverThreshold - unassocOverThreshold;
 
   // Timing
   validation_.calo_hit_time_separation_=TMath::Abs(timeDelay);
 
   // Counts
   validation_.calorimeter_hit_count_=caloHitCount;
+  validation_.calo_hits_over_threshold_=nCalHitsOverLowLimit;
   validation_.geiger_hit_count_=geigerHitCount;
   validation_.cluster_count_=clusterCount;
   validation_.track_count_=trackCount;

@@ -73,6 +73,8 @@ filename_out : string[1] = "my_filename.root"
 
 **calorimeter_hit_count** : Total number of calorimeter hits
 
+**calo_hits_over_threshold** : Total number of calorimeter hits above the 50keV trigger threshold
+
 **cluster_count** : Total number of clusters
 
 **track_count** : Total number of tracks (not including gamma 'tracks')
@@ -89,9 +91,15 @@ filename_out : string[1] = "my_filename.root"
 
 **total_calorimeter_energy** : Summed energy in all calorimeters (MeV)
 
+**calo_energy_over_threshold** : Summed energy in all calorimeters (MeV) of calorimeter hits above the 50keV trigger threshold
+
 **unassociated_calorimeter_energy** : Summed energy in calorimeters not associated to tracks (considered to be gammas) (MeV)
 
+**unassociated_energy_over_threshold** : Summed energy in calorimeters for hits over 50keV that are not associated to tracks (considered to be gammas) (MeV)
+
 **associated_calorimeter_energy** : Summed calo energy associated to tracks (MeV)
+
+**associated_energy_over_threshold** : Summed calo energy for hits over 50keV that are associated to tracks (MeV)
 
 **calo_hit_time_separation** Time in ns between first and last calorimeter hits
 

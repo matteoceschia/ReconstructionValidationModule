@@ -6,7 +6,7 @@ project(ValidationModule)
 find_package(Falaise REQUIRED)
 
 # Build a dynamic library from our sources
-add_library(ValidationModule SHARED ValidationModule.h ValidationModule.cpp TrackDetails.h TrackDetails.cpp)
+add_library(ValidationModule SHARED ValidationModule.h ValidationModule.cpp)
 
 # Link it to the FalaiseModule library
 # This ensures the correct compiler flags, include paths

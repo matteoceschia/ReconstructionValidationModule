@@ -32,22 +32,22 @@
 
 
 typedef struct ValidationEventStorage{
-  double total_calorimeter_energy_;
-  double calo_energy_over_threshold_; // 50keV threshold to remove noise
-  double calo_hit_time_separation_; // Between the first and last calo hits
-  int calorimeter_hit_count_; // How many calorimeter hits?
-  int calo_hits_over_threshold_; // How many calorimeter hits over threshold?
-  int cluster_count_; // How many clusters with 3 or more hits?
-  int track_count_; // How many reconstructed tracks?
-  int negative_track_count_; // How many reconstructed tracks with negative curvature?
-  int positive_track_count_; // How many reconstructed tracks with positive curvature?
-  int associated_track_count_; // How many reconstructed tracks with an associated calorimeter?
-  int geiger_hit_count_; // How many reconstructed tracker hits?
-  std::vector<int> all_track_hit_counts_; // Vector of how many hits for ALL tracks (delayed or not)
-  double unassociated_calorimeter_energy_; // Summed calorimeter energy not associated to any track (in MeV)
-  double unassociated_energy_over_threshold_; // Threshold is 50 keV
-  double associated_calorimeter_energy_; // Summed calorimeter energy associated to any track (in MeV)
-  double associated_energy_over_threshold_; // Threshold is 50 keV
+  double h_total_calorimeter_energy_;
+  double h_calo_energy_over_threshold_; // 50keV threshold to remove noise
+  double h_calo_hit_time_separation_; // Between the first and last calo hits
+  int h_calorimeter_hit_count_; // How many calorimeter hits?
+  int h_calo_hits_over_threshold_; // How many calorimeter hits over threshold?
+  int h_cluster_count_; // How many clusters with 3 or more hits?
+  int h_track_count_; // How many reconstructed tracks?
+  int h_negative_track_count_; // How many reconstructed tracks with negative curvature?
+  int h_positive_track_count_; // How many reconstructed tracks with positive curvature?
+  int h_associated_track_count_; // How many reconstructed tracks with an associated calorimeter?
+  int h_geiger_hit_count_; // How many reconstructed tracker hits?
+  std::vector<int> v_all_track_hit_counts_; // Vector of how many hits for ALL tracks (delayed or not)
+  double h_unassociated_calorimeter_energy_; // Summed calorimeter energy not associated to any track (in MeV)
+  double h_unassociated_energy_over_threshold_; // Threshold is 50 keV
+  double h_associated_calorimeter_energy_; // Summed calorimeter energy associated to any track (in MeV)
+  double h_associated_energy_over_threshold_; // Threshold is 50 keV
   
 }Validationeventstorage;
 

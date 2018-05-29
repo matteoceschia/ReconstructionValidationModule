@@ -46,24 +46,24 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   tree_->SetDirectory(hfile_);
  
   // Some basic counts
-  tree_->Branch("calorimeter_hit_count",&validation_.calorimeter_hit_count_);
-  tree_->Branch("calo_hits_over_threshold",&validation_.calo_hits_over_threshold_);
-  tree_->Branch("cluster_count",&validation_.cluster_count_);
-  tree_->Branch("track_count",&validation_.track_count_);
-  tree_->Branch("negative_track_count",&validation_.negative_track_count_);
-  tree_->Branch("positive_track_count",&validation_.positive_track_count_);
-  tree_->Branch("associated_track_count",&validation_.associated_track_count_);
-  tree_->Branch("geiger_hit_count",&validation_.geiger_hit_count_);
-  tree_->Branch("all_track_hit_counts",&validation_.all_track_hit_counts_);
+  tree_->Branch("h_calorimeter_hit_count",&validation_.h_calorimeter_hit_count_);
+  tree_->Branch("h_calo_hits_over_threshold",&validation_.h_calo_hits_over_threshold_);
+  tree_->Branch("h_cluster_count",&validation_.h_cluster_count_);
+  tree_->Branch("h_track_count",&validation_.h_track_count_);
+  tree_->Branch("h_negative_track_count",&validation_.h_negative_track_count_);
+  tree_->Branch("h_positive_track_count",&validation_.h_positive_track_count_);
+  tree_->Branch("h_associated_track_count",&validation_.h_associated_track_count_);
+  tree_->Branch("h_geiger_hit_count",&validation_.h_geiger_hit_count_);
+  tree_->Branch("v_all_track_hit_counts",&validation_.v_all_track_hit_counts_);
   
   // Energies and calo times
-  tree_->Branch("total_calorimeter_energy",&validation_.total_calorimeter_energy_);
-  tree_->Branch("calo_energy_over_threshold",&validation_.calo_energy_over_threshold_);
-  tree_->Branch("unassociated_calorimeter_energy",&validation_.unassociated_calorimeter_energy_);
-  tree_->Branch("associated_calorimeter_energy",&validation_.associated_calorimeter_energy_);
-  tree_->Branch("unassociated_energy_over_threshold",&validation_.unassociated_energy_over_threshold_);
-  tree_->Branch("associated_energy_over_threshold",&validation_.associated_energy_over_threshold_);
-  tree_->Branch("calo_hit_time_separation",&validation_.calo_hit_time_separation_);
+  tree_->Branch("h_total_calorimeter_energy",&validation_.h_total_calorimeter_energy_);
+  tree_->Branch("h_calo_energy_over_threshold",&validation_.h_calo_energy_over_threshold_);
+  tree_->Branch("h_unassociated_calorimeter_energy",&validation_.h_unassociated_calorimeter_energy_);
+  tree_->Branch("h_associated_calorimeter_energy",&validation_.h_associated_calorimeter_energy_);
+  tree_->Branch("h_unassociated_energy_over_threshold",&validation_.h_unassociated_energy_over_threshold_);
+  tree_->Branch("h_associated_energy_over_threshold",&validation_.h_associated_energy_over_threshold_);
+  tree_->Branch("h_calo_hit_time_separation",&validation_.h_calo_hit_time_separation_);
   
   this->_set_initialized(true);
 }
@@ -231,29 +231,29 @@ ValidationModule::process(datatools::things& workItem) {
     return dpp::base_module::PROCESS_INVALID;
   } //end catch
 
-  validation_.total_calorimeter_energy_ = totalCalorimeterEnergy;
-  validation_.calo_energy_over_threshold_ = energyOverThreshold;
+  validation_.h_total_calorimeter_energy_ = totalCalorimeterEnergy;
+  validation_.h_calo_energy_over_threshold_ = energyOverThreshold;
 
   // Unassociated calorimeter energy is the total energy of the gammas
 
-  validation_.unassociated_calorimeter_energy_ = unassociatedEnergy;
-  validation_.unassociated_energy_over_threshold_ = unassocOverThreshold;
-  validation_.associated_calorimeter_energy_ = totalCalorimeterEnergy-unassociatedEnergy;
-  validation_.associated_energy_over_threshold_ = energyOverThreshold - unassocOverThreshold;
+  validation_.h_unassociated_calorimeter_energy_ = unassociatedEnergy;
+  validation_.h_unassociated_energy_over_threshold_ = unassocOverThreshold;
+  validation_.h_associated_calorimeter_energy_ = totalCalorimeterEnergy-unassociatedEnergy;
+  validation_.h_associated_energy_over_threshold_ = energyOverThreshold - unassocOverThreshold;
 
   // Timing
-  validation_.calo_hit_time_separation_=TMath::Abs(timeDelay);
+  validation_.h_calo_hit_time_separation_=TMath::Abs(timeDelay);
 
   // Counts
-  validation_.calorimeter_hit_count_=caloHitCount;
-  validation_.calo_hits_over_threshold_=nCalHitsOverLowLimit;
-  validation_.geiger_hit_count_=geigerHitCount;
-  validation_.cluster_count_=clusterCount;
-  validation_.track_count_=trackCount;
-  validation_.associated_track_count_=associatedTrackCount;
-  validation_.negative_track_count_=negativeTrackCount;
-  validation_.positive_track_count_=positiveTrackCount;
-  validation_.all_track_hit_counts_=allTrackHitCounts;
+  validation_.h_calorimeter_hit_count_=caloHitCount;
+  validation_.h_calo_hits_over_threshold_=nCalHitsOverLowLimit;
+  validation_.h_geiger_hit_count_=geigerHitCount;
+  validation_.h_cluster_count_=clusterCount;
+  validation_.h_track_count_=trackCount;
+  validation_.h_associated_track_count_=associatedTrackCount;
+  validation_.h_negative_track_count_=negativeTrackCount;
+  validation_.h_positive_track_count_=positiveTrackCount;
+  validation_.v_all_track_hit_counts_=allTrackHitCounts;
   
   tree_->Fill();
   // MUST return a status, see ref dpp::processing_status_flags_type
@@ -263,7 +263,7 @@ ValidationModule::process(datatools::things& workItem) {
 
 void ValidationModule::ResetVars()
 {
-  validation_.all_track_hit_counts_.clear();
+  validation_.v_all_track_hit_counts_.clear();
 }
 
 //! [ValidationModule::reset]

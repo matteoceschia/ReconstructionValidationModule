@@ -65,6 +65,11 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("h_associated_energy_over_threshold",&validation_.h_associated_energy_over_threshold_);
   tree_->Branch("h_calo_hit_time_separation",&validation_.h_calo_hit_time_separation_);
   
+  // Tracker maps
+ // tree_->Branch("t_cell_hit_count",&validation_.t_cell_hit_count_);
+
+  gInterpreter->GenerateDictionary("vector<geom_id>","/Users/cpatrick/CadfaelBrew/include/bayeux/geomtools/geom_id.h;vector");
+  
   this->_set_initialized(true);
 }
 //! [ValidationModule::Process]
@@ -132,6 +137,10 @@ ValidationModule::process(datatools::things& workItem) {
         const snemo::datamodel::calibrated_data::tracker_hit_collection_type& trackerHits = calData.calibrated_tracker_hits();
         for (snemo::datamodel::calibrated_data::tracker_hit_collection_type::const_iterator   iHit = trackerHits.begin(); iHit != trackerHits.end(); ++iHit) {
           geigerHitCount++;
+          // Get the location of the tracker hit
+          const snemo::datamodel::calibrated_tracker_hit & hit = iHit->get();
+          geomtools::geom_id geomid = hit.get_geom_id(); // Store a bayeux geom_id
+          //validation_.t_cell_hit_count_.push_back(geomid);
         }
       }
     }
@@ -264,6 +273,7 @@ ValidationModule::process(datatools::things& workItem) {
 void ValidationModule::ResetVars()
 {
   validation_.v_all_track_hit_counts_.clear();
+  validation_.t_cell_hit_count_.clear();
 }
 
 //! [ValidationModule::reset]

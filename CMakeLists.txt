@@ -6,7 +6,7 @@ project(ValidationModule)
 find_package(Falaise REQUIRED)
 
 # Build a dynamic library from our sources
-add_library(ValidationModule SHARED ValidationModule.h ValidationModule.cpp)
+add_library(ValidationModule SHARED ValidationModule.h ValidationModule.cpp AutoDict_vector_geom_id_.cxx)
 
 # Link it to the FalaiseModule library
 # This ensures the correct compiler flags, include paths

@@ -22,7 +22,6 @@
 #include "bayeux/geomtools/geometry_service.h"
 #include "bayeux/geomtools/line_3d.h"
 #include "bayeux/geomtools/helix_3d.h"
-#include "/Users/cpatrick/CadfaelBrew/include/bayeux/geomtools/geom_id.h"
 #include "bayeux/geomtools/geomtools.h"
 
 // - Falaise
@@ -54,9 +53,25 @@ typedef struct ValidationEventStorage{
   std::vector<int> v_all_track_hit_counts_; // Vector of how many hits for ALL tracks (delayed or not)
   
   // For tracker maps: some values want to be summed over all events (t_), and some to be averaged (mt_)
-  std::vector<geomtools::geom_id> t_cell_hit_count_; // map of cells that have been hit;
+  std::vector<int> t_cell_hit_count_; // map of cells that have been hit;
   
 }Validationeventstorage;
+
+class TrackerLocation{
+  int serialized_location_;
+public:
+  TrackerLocation(geomtools::geom_id);
+  TrackerLocation();
+  virtual ~TrackerLocation();
+  void initialize(geomtools::geom_id);
+  int GetLayer();
+  int GetColumn();
+  int GetXCell();
+  int GetYCell();
+  bool IsItalianSide();
+  bool IsFrenchSide();
+  int GetSerializedLocation();
+};
 
 
 // This Project
@@ -92,6 +107,7 @@ class ValidationModule : public dpp::base_module {
   // to enable the module to be loaded at runtime
   DPP_MODULE_REGISTRATION_INTERFACE(ValidationModule);
 };
+
 #endif // TESTMODULE_HH
 
 

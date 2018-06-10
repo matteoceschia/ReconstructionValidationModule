@@ -6,6 +6,23 @@ int xWallHitType=1232;
 int gammaVetoHitType=1252;
 
 using namespace std;
+
+TrackerLocation::TrackerLocation()
+{
+}
+TrackerLocation::~TrackerLocation()
+{
+}
+TrackerLocation::TrackerLocation(geomtools::geom_id geomid)
+{
+  this->initialize(geomid);
+}
+TrackerLocation::initialize(geomtools::geom_id geomid)
+{
+  int x=geomid.
+  serialized_location_
+}
+
 DPP_MODULE_REGISTRATION_IMPLEMENT(ValidationModule,"ValidationModule");
 ValidationModule::ValidationModule() : dpp::base_module()
 {
@@ -68,7 +85,6 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   // Tracker maps
  // tree_->Branch("t_cell_hit_count",&validation_.t_cell_hit_count_);
 
-  gInterpreter->GenerateDictionary("vector<geom_id>","/Users/cpatrick/CadfaelBrew/include/bayeux/geomtools/geom_id.h;vector");
   
   this->_set_initialized(true);
 }

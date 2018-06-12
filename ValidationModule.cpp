@@ -288,7 +288,7 @@ void ValidationModule::ResetVars()
 int ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit)
 {
   int encodedLocation=hit.get_layer() + 100 * hit.get_row(); // There are fewer than 100 layers so this is OK
-  if (hit.get_side()==0) encodedLocation = -1 * encodedLocation;
+  if (hit.get_side()==0) encodedLocation = (-1 * encodedLocation) - 1;
   // Negative numbers are Italy side, positive are France side
   // layers are 0 to 8 with 0 being at the source foil and 8 by the main wall
   // rows go from 0 (mountain) to 112 (tunnel)

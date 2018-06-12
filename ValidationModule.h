@@ -55,23 +55,14 @@ typedef struct ValidationEventStorage{
   // For tracker maps: some values want to be summed over all events (t_), and some to be averaged (mt_)
   std::vector<int> t_cell_hit_count_; // map of cells that have been hit;
   
+  // temp
+  std::vector<int> side_;
+  std::vector<int> layer_;
+  std::vector<int> row_;
+  
+  
+  
 }Validationeventstorage;
-
-class TrackerLocation{
-  int serialized_location_;
-public:
-  TrackerLocation(geomtools::geom_id);
-  TrackerLocation();
-  virtual ~TrackerLocation();
-  void initialize(geomtools::geom_id);
-  int GetLayer();
-  int GetColumn();
-  int GetXCell();
-  int GetYCell();
-  bool IsItalianSide();
-  bool IsFrenchSide();
-  int GetSerializedLocation();
-};
 
 
 // This Project
@@ -102,6 +93,8 @@ class ValidationModule : public dpp::base_module {
   const geomtools::manager* geometry_manager_; //!< The geometry manager
 
   void ResetVars();
+  // You need to include this function if you want to make tracker maps
+  int EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit);
 
   // Macro which automatically creates the interface needed
   // to enable the module to be loaded at runtime

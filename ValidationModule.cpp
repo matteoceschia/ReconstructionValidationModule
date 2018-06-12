@@ -7,21 +7,6 @@ int gammaVetoHitType=1252;
 
 using namespace std;
 
-TrackerLocation::TrackerLocation()
-{
-}
-TrackerLocation::~TrackerLocation()
-{
-}
-TrackerLocation::TrackerLocation(geomtools::geom_id geomid)
-{
-  this->initialize(geomid);
-}
-TrackerLocation::initialize(geomtools::geom_id geomid)
-{
-  int x=geomid.
-  serialized_location_
-}
 
 DPP_MODULE_REGISTRATION_IMPLEMENT(ValidationModule,"ValidationModule");
 ValidationModule::ValidationModule() : dpp::base_module()
@@ -73,6 +58,11 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("h_geiger_hit_count",&validation_.h_geiger_hit_count_);
   tree_->Branch("v_all_track_hit_counts",&validation_.v_all_track_hit_counts_);
   
+  // temp
+  tree_->Branch("side",&validation_.side_);
+  tree_->Branch("layer",&validation_.layer_);
+  tree_->Branch("row",&validation_.row_);
+  
   // Energies and calo times
   tree_->Branch("h_total_calorimeter_energy",&validation_.h_total_calorimeter_energy_);
   tree_->Branch("h_calo_energy_over_threshold",&validation_.h_calo_energy_over_threshold_);
@@ -83,7 +73,7 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("h_calo_hit_time_separation",&validation_.h_calo_hit_time_separation_);
   
   // Tracker maps
- // tree_->Branch("t_cell_hit_count",&validation_.t_cell_hit_count_);
+  tree_->Branch("t_cell_hit_count",&validation_.t_cell_hit_count_);
 
   
   this->_set_initialized(true);
@@ -112,10 +102,21 @@ ValidationModule::process(datatools::things& workItem) {
   int positiveTrackCount=0;
   std::vector<int> allTrackHitCounts;
 
+
+  // We need to run this before we start populating vectors. Put all your vectors in this function to clear them
+  ResetVars();
+  
   // Grab calibrated data bank
   // Calibrated data will only be present in reconstructed files,
   // so wrap in a try block
   
+  // TEMP
+  validation_.side_.clear();
+  validation_.row_.clear();
+  validation_.layer_.clear();
+  
+
+
   try {
     const snemo::datamodel::calibrated_data& calData = workItem.get<snemo::datamodel::calibrated_data>("CD");
 
@@ -155,8 +156,12 @@ ValidationModule::process(datatools::things& workItem) {
           geigerHitCount++;
           // Get the location of the tracker hit
           const snemo::datamodel::calibrated_tracker_hit & hit = iHit->get();
-          geomtools::geom_id geomid = hit.get_geom_id(); // Store a bayeux geom_id
-          //validation_.t_cell_hit_count_.push_back(geomid);
+          validation_.row_.push_back(hit.get_row());
+          validation_.side_.push_back(hit.get_side());
+          validation_.layer_.push_back(hit.get_layer());
+          validation_.t_cell_hit_count_.push_back(EncodeLocation (hit));
+
+          
         }
       }
     }
@@ -291,6 +296,17 @@ void ValidationModule::ResetVars()
   validation_.v_all_track_hit_counts_.clear();
   validation_.t_cell_hit_count_.clear();
 }
+
+int ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit)
+{
+  int encodedLocation=hit.get_layer() + 100 * hit.get_row(); // There are fewer than 100 layers so this is OK
+  if (hit.get_side()==0) encodedLocation = -1 * encodedLocation;
+  // Negative numbers are Italy side, positive are France side
+  // layers are 0 to 8 with 0 being at the source foil and 8 by the main wall
+  // rows go from 0 (mountain) to 112 (tunnel)
+  return encodedLocation;
+}
+
 
 //! [ValidationModule::reset]
 void ValidationModule::reset() {

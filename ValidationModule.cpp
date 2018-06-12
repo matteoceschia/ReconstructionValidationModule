@@ -58,11 +58,6 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("h_geiger_hit_count",&validation_.h_geiger_hit_count_);
   tree_->Branch("v_all_track_hit_counts",&validation_.v_all_track_hit_counts_);
   
-  // temp
-  tree_->Branch("side",&validation_.side_);
-  tree_->Branch("layer",&validation_.layer_);
-  tree_->Branch("row",&validation_.row_);
-  
   // Energies and calo times
   tree_->Branch("h_total_calorimeter_energy",&validation_.h_total_calorimeter_energy_);
   tree_->Branch("h_calo_energy_over_threshold",&validation_.h_calo_energy_over_threshold_);
@@ -109,12 +104,7 @@ ValidationModule::process(datatools::things& workItem) {
   // Grab calibrated data bank
   // Calibrated data will only be present in reconstructed files,
   // so wrap in a try block
-  
-  // TEMP
-  validation_.side_.clear();
-  validation_.row_.clear();
-  validation_.layer_.clear();
-  
+
 
 
   try {
@@ -156,9 +146,7 @@ ValidationModule::process(datatools::things& workItem) {
           geigerHitCount++;
           // Get the location of the tracker hit
           const snemo::datamodel::calibrated_tracker_hit & hit = iHit->get();
-          validation_.row_.push_back(hit.get_row());
-          validation_.side_.push_back(hit.get_side());
-          validation_.layer_.push_back(hit.get_layer());
+          // Encode it into an integer so we can easily put it in an ntuple branch
           validation_.t_cell_hit_count_.push_back(EncodeLocation (hit));
 
           

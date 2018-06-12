@@ -53,13 +53,7 @@ typedef struct ValidationEventStorage{
   std::vector<int> v_all_track_hit_counts_; // Vector of how many hits for ALL tracks (delayed or not)
   
   // For tracker maps: some values want to be summed over all events (t_), and some to be averaged (mt_)
-  std::vector<int> t_cell_hit_count_; // map of cells that have been hit;
-  
-  // temp
-  std::vector<int> side_;
-  std::vector<int> layer_;
-  std::vector<int> row_;
-  
+  std::vector<int> t_cell_hit_count_; // map of cells that have been hit
   
   
 }Validationeventstorage;

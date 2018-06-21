@@ -69,9 +69,11 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   
   // Tracker maps
   tree_->Branch("t_cell_hit_count",&validation_.t_cell_hit_count_);
+  tree_->Branch("tm_average_drift_radius",&validation_.tm_average_drift_radius_);
 
   // Calo maps
   tree_->Branch("c_calorimeter_hit_map",&validation_.c_calorimeter_hit_map_);
+  tree_->Branch("c_average_calorimeter_energy",&validation_.cm_average_calorimeter_energy_);
   
   this->_set_initialized(true);
 }
@@ -287,7 +289,9 @@ void ValidationModule::ResetVars()
 {
   validation_.v_all_track_hit_counts_.clear();
   validation_.t_cell_hit_count_.clear();
-  validation_.c_calorimeter_hit_map_.clear();//####
+  validation_.c_calorimeter_hit_map_.clear();
+  validation_.cm_average_calorimeter_energy_.clear();
+  validation_.tm_average_drift_radius_.clear();
 }
 
 int ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit)

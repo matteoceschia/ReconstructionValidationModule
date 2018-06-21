@@ -70,6 +70,8 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   // Tracker maps
   tree_->Branch("t_cell_hit_count",&validation_.t_cell_hit_count_);
 
+  // Calo maps
+  tree_->Branch("c_calorimeter_hit_map",&validation_.c_calorimeter_hit_map_);
   
   this->_set_initialized(true);
 }
@@ -116,6 +118,10 @@ ValidationModule::process(datatools::things& workItem) {
         const snemo::datamodel::calibrated_data::calorimeter_hit_collection_type & calHits=calData.calibrated_calorimeter_hits();
         for (snemo::datamodel::calibrated_data::calorimeter_hit_collection_type::const_iterator   iHit = calHits.begin(); iHit != calHits.end(); ++iHit) {
           const snemo::datamodel::calibrated_calorimeter_hit & calHit = iHit->get();
+          
+          // Write to the calorimeter map
+          validation_.c_calorimeter_hit_map_.push_back(EncodeLocation(calHit));
+          
           double energy=calHit.get_energy() ;
           totalCalorimeterEnergy += energy;
           if (energy > LOW_ENERGY_LIMIT)
@@ -148,8 +154,6 @@ ValidationModule::process(datatools::things& workItem) {
           const snemo::datamodel::calibrated_tracker_hit & hit = iHit->get();
           // Encode it into an integer so we can easily put it in an ntuple branch
           validation_.t_cell_hit_count_.push_back(EncodeLocation (hit));
-
-          
         }
       }
     }
@@ -283,6 +287,7 @@ void ValidationModule::ResetVars()
 {
   validation_.v_all_track_hit_counts_.clear();
   validation_.t_cell_hit_count_.clear();
+  validation_.c_calorimeter_hit_map_.clear();//####
 }
 
 int ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit)
@@ -293,6 +298,14 @@ int ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_tracker_
   // layers are 0 to 8 with 0 being at the source foil and 8 by the main wall
   // rows go from 0 (mountain) to 112 (tunnel)
   return encodedLocation;
+}
+
+
+string ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_calorimeter_hit & hit)
+{ // Returns the geomID as a string ready for decoding
+  std::stringstream buffer;
+  buffer << hit.get_geom_id();
+  return buffer.str();
 }
 
 

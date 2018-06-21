@@ -48,6 +48,7 @@ typedef struct ValidationEventStorage{
   double h_unassociated_energy_over_threshold_; // Threshold is 50 keV
   double h_associated_calorimeter_energy_; // Summed calorimeter energy associated to any track (in MeV)
   double h_associated_energy_over_threshold_; // Threshold is 50 keV
+
   
   // For vector (v_) quantities you can have more than 1 entry per event
   std::vector<int> v_all_track_hit_counts_; // Vector of how many hits for ALL tracks (delayed or not)
@@ -55,6 +56,8 @@ typedef struct ValidationEventStorage{
   // For tracker maps: some values want to be summed over all events (t_), and some to be averaged (mt_)
   std::vector<int> t_cell_hit_count_; // map of cells that have been hit
   
+  // For calorimeter maps : some values want to be summed over all events (c_), and some to be averaged (mc_)
+  std::vector<std::string> c_calorimeter_hit_map_;
   
 }Validationeventstorage;
 
@@ -87,8 +90,9 @@ class ValidationModule : public dpp::base_module {
   const geomtools::manager* geometry_manager_; //!< The geometry manager
 
   void ResetVars();
-  // You need to include this function if you want to make tracker maps
+  // You need to include these functions if you want to make detector maps
   int EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit);
+  std::string EncodeLocation(const snemo::datamodel::calibrated_calorimeter_hit & hit);
 
   // Macro which automatically creates the interface needed
   // to enable the module to be loaded at runtime

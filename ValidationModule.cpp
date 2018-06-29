@@ -69,12 +69,29 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   
   // Tracker maps
   tree_->Branch("t_cell_hit_count",&validation_.t_cell_hit_count_);
-  tree_->Branch("tm_average_drift_radius",&validation_.tm_average_drift_radius_);
+  // For branches that are per tracker hit, specify the corresponding tracker map variable after the .
+  // This vector needs to have the same number of entries as the one you are mapping
+  // and it specifies the corresponding locations
+  // For example, if you have hits of radius 12mm at (4,5) and =17mm at (6,6)
+  // Your branch here would contain (12,17) and your corresponding map branch would contain
+  // ((4,5),(6,6))
+  // In this example I am mapping all tracker hits to get their average radius
+  // But you could make branches that only include (for example) clustered hits
+  // Just make sure you match the branch with the data to the branch with the corresponding locations
+  tree_->Branch("tm_average_drift_radius.t_cell_hit_count",&validation_.tm_average_drift_radius_);
 
-  // Calo maps
+  // Calo maps. See this as an example of how to encode a calorimeter location
   tree_->Branch("c_calorimeter_hit_map",&validation_.c_calorimeter_hit_map_);
-  tree_->Branch("c_average_calorimeter_energy",&validation_.cm_average_calorimeter_energy_);
-  
+  // For branches that are per calorimeter, specify the corresponding calorimeter map variable  after the .
+  // This vector needs to have the same number of entries as the one you are mapping
+  // and it specifies the corresponding locations
+  // For example, if you have hits of 2MeV at calorimeter [1302:0:0:1] and 1 MeV at [1232:0:0:1:15]
+  // Your branch here would contain (2,1) and your corresponding map branch would contain
+  // ([1302:0:0:1],[1232:0:0:1:15])
+  // In this example I am mapping all calorimeter hits to get their average energy
+  // But you could make branches that only include (for example) hits associated with a track -
+  // Just make sure you match the branch with the data to the branch with the corresponding locations
+  tree_->Branch ("cm_average_calorimeter_energy.c_calorimeter_hit_map",&validation_.cm_average_calorimeter_energy_);
   this->_set_initialized(true);
 }
 //! [ValidationModule::Process]
@@ -125,6 +142,8 @@ ValidationModule::process(datatools::things& workItem) {
           validation_.c_calorimeter_hit_map_.push_back(EncodeLocation(calHit));
           
           double energy=calHit.get_energy() ;
+          // Write to the energy vector
+          validation_.cm_average_calorimeter_energy_.push_back(energy);
           totalCalorimeterEnergy += energy;
           if (energy > LOW_ENERGY_LIMIT)
           {
@@ -156,6 +175,8 @@ ValidationModule::process(datatools::things& workItem) {
           const snemo::datamodel::calibrated_tracker_hit & hit = iHit->get();
           // Encode it into an integer so we can easily put it in an ntuple branch
           validation_.t_cell_hit_count_.push_back(EncodeLocation (hit));
+          // Vector of radii for mapping
+          validation_.tm_average_drift_radius_.push_back(hit.get_r());
         }
       }
     }

@@ -1,11 +1,10 @@
-# SensitivityModule readme
+# ValidationModule readme
 
 
 Cheryl Patrick (UCL)
-Last updated March 6, 2018
+Last updated July 4th 2018
 
-ValidationModule  is a Falaise pipeline module to process a selection of basic validation data and output a ROOT ntuple file, to be used for standard plots and metrics to validate data quality and basic reconstruction. The code is based on the SensitivityModule, but outputs completely different data
-
+ValidationModule  is a Falaise pipeline module to process a selection of basic validation data and output a ROOT ntuple file, to be used for standard plots and metrics to validate data quality and basic reconstruction. The code is based on the SensitivityModule, but outputs completely different data. It should serve as an example for further validation modules; this one looks at reconstructed quantities like the number of reconstructed hits in an event or the reconstructed energy in a calorimeter.
 
 ## Files:
 
@@ -69,37 +68,44 @@ The final two lines of the configuration file must read:
 filename_out : string[1] = "my_filename.root"
 
 
-## Output tuple structure -
+## Branches in the tuple -
 
-**calorimeter_hit_count** : Total number of calorimeter hits
+**h_calorimeter_hit_count** : Total number of reconstructed calorimeter hits
 
-**calo_hits_over_threshold** : Total number of calorimeter hits above the 50keV trigger threshold
+**h_calo_hits_over_threshold** : Total number of reconstructed calorimeter hits above the 50keV trigger threshold
 
-**cluster_count** : Total number of clusters
+**h_cluster_count** : Total number of reconstructed clusters
 
-**track_count** : Total number of tracks (not including gamma 'tracks')
+**h_track_count** : Total number of reconstructed tracks (not including gamma 'tracks')
 
-**negative_track_count** : Tracks with negative charge (from curvature, assuming coming from foil)
+**h_negative_track_count** : Tracks with negative charge (from curvature, assuming coming from foil)
 
-**positive_track_count** : Tracks with positive charge (from curvature, assuming coming from foil)
+**h_positive_track_count** : Tracks with positive charge (from curvature, assuming coming from foil)
 
-**associated_track_count** : Number of tracks with associated calo hit
+**h_associated_track_count** : Number of tracks with associated calo hit
 
-**geiger_hit_count** : Total number of tracker hits
+**h_geiger_hit_count** : Total number of tracker hits
 
-**all_track_hit_counts** : Vector of the number of tracker hits in each individual track
+**v_all_track_hit_counts** : Vector of the number of tracker hits in each individual track
 
-**total_calorimeter_energy** : Summed energy in all calorimeters (MeV)
+**h_total_calorimeter_energy** : Summed energy in all calorimeters (MeV)
 
-**calo_energy_over_threshold** : Summed energy in all calorimeters (MeV) of calorimeter hits above the 50keV trigger threshold
+**h_calo_energy_over_threshold** : Summed energy in all calorimeters (MeV) of calorimeter hits above the 50keV trigger threshold
 
-**unassociated_calorimeter_energy** : Summed energy in calorimeters not associated to tracks (considered to be gammas) (MeV)
+**h_unassociated_calorimeter_energy** : Summed energy in calorimeters not associated to tracks (considered to be gammas) (MeV)
 
-**unassociated_energy_over_threshold** : Summed energy in calorimeters for hits over 50keV that are not associated to tracks (considered to be gammas) (MeV)
+**h_unassociated_energy_over_threshold** : Summed energy in calorimeters for hits over 50keV that are not associated to tracks (considered to be gammas) (MeV)
 
-**associated_calorimeter_energy** : Summed calo energy associated to tracks (MeV)
+**h_associated_calorimeter_energy** : Summed calo energy associated to tracks (MeV)
 
-**associated_energy_over_threshold** : Summed calo energy for hits over 50keV that are associated to tracks (MeV)
+**h_associated_energy_over_threshold** : Summed calo energy for hits over 50keV that are associated to tracks (MeV)
 
-**calo_hit_time_separation** Time in ns between first and last calorimeter hits
+**h_calo_hit_time_separation** Time in ns between first and last calorimeter hits
 
+**t_cell_hit_count** Vector of tracker cells that have a geiger hit. Encoded using the EncodeLocation function
+
+**tm_average_drift_radius.t_cell_hit_count** Vector of drift radii for each Geiger hit in mm. The order of the hits corresponds to the order of cell locations in t_cell_hit_count
+
+**c_calorimeter_hit_map** Vector with all calorimeter hit locations, encoded using EncodeLocation
+
+**cm_average_calorimeter_energy.c_calorimeter_hit_map** Vector of energies of calorimeter hits in MeV. The order of the hits corresponds to the order of hit locations in c_calorimeter_hit_map

@@ -67,6 +67,12 @@ The final two lines of the configuration file must read:
 [name="processing" type="ValidationModule"]
 filename_out : string[1] = "my_filename.root"
 
+## Types of branch
+
+The ValidationParser will process the output tuples, making standard plots and (in future) comparing them to reference distributions. In order for it to do so, you need to follow some naming and formatting conventions when you create the branches. The branch name prefix tells the program how to process the information in the branch. The parser knows how to deal with the following types of branch:
+
+**Simple Histogram branches:** prefix: `h`
+
 
 ## Branches in the tuple -
 

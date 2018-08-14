@@ -78,7 +78,10 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   // In this example I am mapping all tracker hits to get their average radius
   // But you could make branches that only include (for example) clustered hits
   // Just make sure you match the branch with the data to the branch with the corresponding locations
+  // Set up an error branch too, to hold the uncertainties, in the same order.
+  // See here for how to name it.
   tree_->Branch("tm_average_drift_radius.t_cell_hit_count",&validation_.tm_average_drift_radius_);
+  tree_->Branch("err_average_drift_radius",&validation_.err_average_drift_radius_);
 
   // Calo maps. See this as an example of how to encode a calorimeter location
   tree_->Branch("c_calorimeter_hit_map",&validation_.c_calorimeter_hit_map_);
@@ -91,7 +94,11 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   // In this example I am mapping all calorimeter hits to get their average energy
   // But you could make branches that only include (for example) hits associated with a track -
   // Just make sure you match the branch with the data to the branch with the corresponding locations
+  // Set up an error branch too, to hold the uncertainties, in the same order.
+  // See here for how to name it.
   tree_->Branch ("cm_average_calorimeter_energy.c_calorimeter_hit_map",&validation_.cm_average_calorimeter_energy_);
+  
+  tree_->Branch ("err_average_calorimeter_energy",&validation_.err_average_calorimeter_energy_);
   this->_set_initialized(true);
 }
 //! [ValidationModule::Process]
@@ -144,6 +151,8 @@ ValidationModule::process(datatools::things& workItem) {
           double energy=calHit.get_energy() ;
           // Write to the energy vector
           validation_.cm_average_calorimeter_energy_.push_back(energy);
+          // Don't forget to write the uncertainty
+          validation_.err_average_calorimeter_energy_.push_back(calHit.get_sigma_energy());
           totalCalorimeterEnergy += energy;
           if (energy > LOW_ENERGY_LIMIT)
           {
@@ -177,6 +186,7 @@ ValidationModule::process(datatools::things& workItem) {
           validation_.t_cell_hit_count_.push_back(EncodeLocation (hit));
           // Vector of radii for mapping
           validation_.tm_average_drift_radius_.push_back(hit.get_r());
+          validation_.err_average_drift_radius_.push_back(hit.get_sigma_r());
         }
       }
     }
@@ -313,6 +323,8 @@ void ValidationModule::ResetVars()
   validation_.c_calorimeter_hit_map_.clear();
   validation_.cm_average_calorimeter_energy_.clear();
   validation_.tm_average_drift_radius_.clear();
+  validation_.err_average_calorimeter_energy_.clear();
+  validation_.err_average_drift_radius_.clear();
 }
 
 int ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit)

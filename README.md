@@ -89,7 +89,7 @@ Example: `tm_average_drift_radius.t_cell_hit_count`. This will map the mean of s
 
 This is confusing so here is an example. Let's say we have an event with 2 Geiger hits: one has a radius of 10mm, at tracker location (1,2). The other has a radius of 15mm, at tracker location (1,3). We will push two entries to the `tm_average_drift_radius.t_cell_hit_count branch`: 10 and 15. We will push two locations to the `t_cell_hit_count` branch - the encoded locations corresponding to (1,2) and (1,3). The parser will note that those radii (10 and 15) occurred at those locations ((1,2) and (1,3)) and include them when calculating the average radius recorded in the (1,2) and (1,3) cells.
 
-The uncertainties on these are given by creating a partnered branch with no suffix ("." and map branch name), and with "tm_" changed to "err_". Again, the uncertainties must be pushed to this vector in the same order as the values in the main branch.
+The uncertainties on these are given by creating a partnered branch with no suffix (`.` and map branch name), and with `tm_` changed to `err_`. Again, the uncertainties must be pushed to this vector in the same order as the values in the main branch.
 
 **Calorimeter branches:** prefix: `c_`
 
@@ -103,7 +103,7 @@ Example: `cm_average_calorimeter_energy.c_calorimeter_hit_map`. This will map th
 
 This is confusing so here is an example. Let's say we have an event with 2 calorimeter hits: one is of 2MeV, at location (3,4) on the Italian wall. The other has energy 1.5 MeV, at at location (2,7) on the French wall. We will push two entries to the `cm_average_calorimeter_energy.c_calorimeter_hit_map`: 2 and 1.5. We will push two locations to the `c_calorimeter_hit_map` branch - the encoded locations corresponding to (3,4) on the Italian wall and (2,7) on the French wall. The parser will note that those energies (2 and 1.5) were measured at those calorimeter locations, and include them in the average-energy calculation for those 2 particular calorimeter modules.
 
-The uncertainties on these are given by creating a partnered branch with no suffix ("." and map branch name), and with "cm_" changed to "err_". Again, the uncertainties must be pushed to this vector in the same order as the values in the main branch.
+The uncertainties on these are given by creating a partnered branch with no suffix (`.` and map branch name), and with `cm_` changed to `err_`. Again, the uncertainties must be pushed to this vector in the same order as the values in the main branch.
 
 
 

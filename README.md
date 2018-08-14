@@ -89,6 +89,8 @@ Example: `tm_average_drift_radius.t_cell_hit_count`. This will map the mean of s
 
 This is confusing so here is an example. Let's say we have an event with 2 Geiger hits: one has a radius of 10mm, at tracker location (1,2). The other has a radius of 15mm, at tracker location (1,3). We will push two entries to the `tm_average_drift_radius.t_cell_hit_count branch`: 10 and 15. We will push two locations to the `t_cell_hit_count` branch - the encoded locations corresponding to (1,2) and (1,3). The parser will note that those radii (10 and 15) occurred at those locations ((1,2) and (1,3)) and include them when calculating the average radius recorded in the (1,2) and (1,3) cells.
 
+The uncertainties on these are given by creating a partnered branch with no suffix ("." and map branch name), and with "tm_" changed to "err_". Again, the uncertainties must be pushed to this vector in the same order as the values in the main branch.
+
 **Calorimeter branches:** prefix: `c_`
 
 Example: `c_calorimeter_hit_map`.  This stores an encoded location (calorimeter identifier). To use one of these branches, you MUST encode the location of each hit using the `EncodeLocation` function, then push it to a vector. In this example, `c_calorimeter_hit_map` just stores the location of every calorimeter hit but you could make a branch that stored something different - for example, only hits associated with a track.
@@ -100,6 +102,9 @@ This will produce a 2-d heat-map of each calorimeter wall, showing how many time
 Example: `cm_average_calorimeter_energy.c_calorimeter_hit_map`. This will map the mean of some value over the 6 calorimeter walls. In order to do so, you need to push the value you want to average to a vector, in the same order that you pushed a location. The locations should be in the branch named after the `.` in the branch name.
 
 This is confusing so here is an example. Let's say we have an event with 2 calorimeter hits: one is of 2MeV, at location (3,4) on the Italian wall. The other has energy 1.5 MeV, at at location (2,7) on the French wall. We will push two entries to the `cm_average_calorimeter_energy.c_calorimeter_hit_map`: 2 and 1.5. We will push two locations to the `c_calorimeter_hit_map` branch - the encoded locations corresponding to (3,4) on the Italian wall and (2,7) on the French wall. The parser will note that those energies (2 and 1.5) were measured at those calorimeter locations, and include them in the average-energy calculation for those 2 particular calorimeter modules.
+
+The uncertainties on these are given by creating a partnered branch with no suffix ("." and map branch name), and with "cm_" changed to "err_". Again, the uncertainties must be pushed to this vector in the same order as the values in the main branch.
+
 
 
 ## Branches in this tuple
@@ -140,6 +145,10 @@ This is confusing so here is an example. Let's say we have an event with 2 calor
 
 **tm_average_drift_radius.t_cell_hit_count** Vector of drift radii for each Geiger hit in mm. The order of the hits corresponds to the order of cell locations in t_cell_hit_count
 
+**err_average_drift_radius** Vector of uncertainties on the drift radii for each Geiger hit in mm. The order of the hits corresponds to the order of hit locations in tm_average_drift_radius. It's important that the names match, with "err_" prefix, and with no "." suffix 
+
 **c_calorimeter_hit_map** Vector with all calorimeter hit locations, encoded using EncodeLocation
 
 **cm_average_calorimeter_energy.c_calorimeter_hit_map** Vector of energies of calorimeter hits in MeV. The order of the hits corresponds to the order of hit locations in c_calorimeter_hit_map
+
+**err_average_calorimeter_energy** Vector of uncertainties on the energies of calorimeter hits in MeV. The order of the hits corresponds to the order of hit locations in cm_average_calorimeter_energy. It's important that the names match, with "err_" prefix, and with no "." suffix 

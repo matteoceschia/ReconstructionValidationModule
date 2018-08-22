@@ -51,26 +51,20 @@ typedef struct ValidationEventStorage{
 
   
   // For vector (v_) quantities you can have more than 1 entry per event
+  // NOT implemented yet!
   std::vector<int> v_all_track_hit_counts_; // Vector of how many hits for ALL tracks (delayed or not)
   
   // For tracker maps: some values want to be summed over all events (t_), and some to be averaged (tm_)
   // All tm variables will need to be paired with a hit map, so that we can match the vector of values
-  // to a vector of locations. This pairing must be defined in the config file. To set the uncertainty, you
-  // should also have a branch with the same name, but with tm_ replaced by err_. Populate this with the
-  // uncertainties on the values you put in the tm_ branch
+  // to a vector of locations. This pairing must be defined in the config file.
 
   std::vector<int> t_cell_hit_count_; // map of cells that have been hit
   std::vector<double> tm_average_drift_radius_; // map of cells that have been hit
-  std::vector<double> err_average_drift_radius_;  // uncertainties associated with tm_average_drift_radius_
-  
   // For calorimeter maps : some values want to be summed over all events (c_), and some to be averaged (cm_)
   // All cm variables will need to be paired with a hit map, so that we can match the vector of values
-  // to a vector of locations. This pairing must be defined in the config file. To set the uncertainty, you
-  // should also have a branch with the same name, but with cm_ replaced by err_. Populate this with the
-  // uncertainties on the values you put in the cm_ branch
+  // to a vector of locations. This pairing must be defined in the config file.
   std::vector<std::string> c_calorimeter_hit_map_;
   std::vector<double> cm_average_calorimeter_energy_;
-  std::vector<double> err_average_calorimeter_energy_;
 
 }Validationeventstorage;
 

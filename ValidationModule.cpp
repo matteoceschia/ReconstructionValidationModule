@@ -78,11 +78,9 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   // In this example I am mapping all tracker hits to get their average radius
   // But you could make branches that only include (for example) clustered hits
   // Just make sure you match the branch with the data to the branch with the corresponding locations
-  // Set up an error branch too, to hold the uncertainties, in the same order.
-  // See here for how to name it.
-  tree_->Branch("tm_average_drift_radius.t_cell_hit_count",&validation_.tm_average_drift_radius_);
-  tree_->Branch("err_average_drift_radius",&validation_.err_average_drift_radius_);
 
+  tree_->Branch("tm_average_drift_radius.t_cell_hit_count",&validation_.tm_average_drift_radius_);
+  
   // Calo maps. See this as an example of how to encode a calorimeter location
   tree_->Branch("c_calorimeter_hit_map",&validation_.c_calorimeter_hit_map_);
   // For branches that are per calorimeter, specify the corresponding calorimeter map variable  after the .
@@ -94,11 +92,9 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   // In this example I am mapping all calorimeter hits to get their average energy
   // But you could make branches that only include (for example) hits associated with a track -
   // Just make sure you match the branch with the data to the branch with the corresponding locations
-  // Set up an error branch too, to hold the uncertainties, in the same order.
-  // See here for how to name it.
+
   tree_->Branch ("cm_average_calorimeter_energy.c_calorimeter_hit_map",&validation_.cm_average_calorimeter_energy_);
-  
-  tree_->Branch ("err_average_calorimeter_energy",&validation_.err_average_calorimeter_energy_);
+
   this->_set_initialized(true);
 }
 //! [ValidationModule::Process]
@@ -109,8 +105,8 @@ ValidationModule::process(datatools::things& workItem) {
   // declare internal variables to mimic the ntuple variables, names are same but in camel case
   double totalCalorimeterEnergy=0;
   double energyOverThreshold=0;
-  double unassociatedEnergy=0;
-  double unassocOverThreshold=0;
+  double associatedEnergy=0;
+  double assocOverThreshold=0;
   double timeDelay=-1;
   int clusterCount=0;
   int trackCount=0;
@@ -151,8 +147,7 @@ ValidationModule::process(datatools::things& workItem) {
           double energy=calHit.get_energy() ;
           // Write to the energy vector
           validation_.cm_average_calorimeter_energy_.push_back(energy);
-          // Don't forget to write the uncertainty
-          validation_.err_average_calorimeter_energy_.push_back(calHit.get_sigma_energy());
+
           totalCalorimeterEnergy += energy;
           if (energy > LOW_ENERGY_LIMIT)
           {
@@ -186,7 +181,6 @@ ValidationModule::process(datatools::things& workItem) {
           validation_.t_cell_hit_count_.push_back(EncodeLocation (hit));
           // Vector of radii for mapping
           validation_.tm_average_drift_radius_.push_back(hit.get_r());
-          validation_.err_average_drift_radius_.push_back(hit.get_sigma_r());
         }
       }
     }
@@ -248,23 +242,38 @@ ValidationModule::process(datatools::things& workItem) {
             trackCount++;
             break;
           }
-          case snemo::datamodel::particle_track::NEUTRAL:
-          {
-            for (unsigned int hit=0; hit<track.get_associated_calorimeter_hits().size();++hit)
-            {
-              const snemo::datamodel::calibrated_calorimeter_hit & calo_hit = track.get_associated_calorimeter_hits().at(hit).get();
-              double energy=calo_hit.get_energy();
-              unassociatedEnergy+=energy;
-              if (energy > LOW_ENERGY_LIMIT)
-              {
-                unassocOverThreshold += energy;
-              }
-            }
-            continue;
-          }
+//          case snemo::datamodel::particle_track::NEUTRAL:
+//          {
+//            for (unsigned int hit=0; hit<track.get_associated_calorimeter_hits().size();++hit)
+//            {
+//              const snemo::datamodel::calibrated_calorimeter_hit & calo_hit = track.get_associated_calorimeter_hits().at(hit).get();
+//              double energy=calo_hit.get_energy();
+//              unassociatedEnergy+=energy;
+//              if (energy > LOW_ENERGY_LIMIT)
+//              {
+//                unassocOverThreshold += energy;
+//              }
+//            }
+//            continue;
+//          }
           default:
             continue;
         }
+        // See if it has associated energy
+        if (track.get_charge() != snemo::datamodel::particle_track::NEUTRAL)
+        {
+          for (unsigned int hit=0; hit<track.get_associated_calorimeter_hits().size();++hit)
+          {
+            const snemo::datamodel::calibrated_calorimeter_hit & calo_hit = track.get_associated_calorimeter_hits().at(hit).get();
+            double energy=calo_hit.get_energy();
+            associatedEnergy+=energy;
+            if (energy > LOW_ENERGY_LIMIT)
+            {
+              assocOverThreshold += energy;
+            }
+          }
+        }
+      
         // Number of tracker hits
         const snemo::datamodel::tracker_trajectory & the_trajectory = track.get_trajectory();
         const snemo::datamodel::tracker_cluster & the_cluster = the_trajectory.get_cluster();
@@ -291,10 +300,10 @@ ValidationModule::process(datatools::things& workItem) {
 
   // Unassociated calorimeter energy is the total energy of the gammas
 
-  validation_.h_unassociated_calorimeter_energy_ = unassociatedEnergy;
-  validation_.h_unassociated_energy_over_threshold_ = unassocOverThreshold;
-  validation_.h_associated_calorimeter_energy_ = totalCalorimeterEnergy-unassociatedEnergy;
-  validation_.h_associated_energy_over_threshold_ = energyOverThreshold - unassocOverThreshold;
+  validation_.h_associated_calorimeter_energy_ = associatedEnergy;
+  validation_.h_associated_energy_over_threshold_ = assocOverThreshold;
+  validation_.h_unassociated_calorimeter_energy_ = totalCalorimeterEnergy-associatedEnergy;
+  validation_.h_unassociated_energy_over_threshold_ = energyOverThreshold - assocOverThreshold;
 
   // Timing
   validation_.h_calo_hit_time_separation_=TMath::Abs(timeDelay);
@@ -323,8 +332,6 @@ void ValidationModule::ResetVars()
   validation_.c_calorimeter_hit_map_.clear();
   validation_.cm_average_calorimeter_energy_.clear();
   validation_.tm_average_drift_radius_.clear();
-  validation_.err_average_calorimeter_energy_.clear();
-  validation_.err_average_drift_radius_.clear();
 }
 
 int ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit)

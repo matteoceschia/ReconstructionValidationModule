@@ -46,7 +46,7 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   hfile_->cd();
   tree_ = new TTree("Validation","Validation");
   tree_->SetDirectory(hfile_);
- 
+
   // Some basic counts
   tree_->Branch("h_calorimeter_hit_count",&validation_.h_calorimeter_hit_count_);
   tree_->Branch("h_calo_hits_over_threshold",&validation_.h_calo_hits_over_threshold_);
@@ -57,7 +57,7 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("h_associated_track_count",&validation_.h_associated_track_count_);
   tree_->Branch("h_geiger_hit_count",&validation_.h_geiger_hit_count_);
   tree_->Branch("v_all_track_hit_counts",&validation_.v_all_track_hit_counts_);
-  
+
   // Energies and calo times
   tree_->Branch("h_total_calorimeter_energy",&validation_.h_total_calorimeter_energy_);
   tree_->Branch("h_calo_energy_over_threshold",&validation_.h_calo_energy_over_threshold_);
@@ -66,7 +66,7 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   tree_->Branch("h_unassociated_energy_over_threshold",&validation_.h_unassociated_energy_over_threshold_);
   tree_->Branch("h_associated_energy_over_threshold",&validation_.h_associated_energy_over_threshold_);
   tree_->Branch("h_calo_hit_time_separation",&validation_.h_calo_hit_time_separation_);
-  
+
   // Tracker maps
   tree_->Branch("t_cell_hit_count",&validation_.t_cell_hit_count_);
   // For branches that are per tracker hit, specify the corresponding tracker map variable after the .
@@ -80,9 +80,17 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
   // Just make sure you match the branch with the data to the branch with the corresponding locations
 
   tree_->Branch("tm_average_drift_radius.t_cell_hit_count",&validation_.tm_average_drift_radius_);
-  
+
   // Calo maps. See this as an example of how to encode a calorimeter location
   tree_->Branch("c_calorimeter_hit_map",&validation_.c_calorimeter_hit_map_);
+  //
+  tree_->Branch("c_calorimeter_hit_map_low",&validation_.c_calorimeter_hit_map_low_);
+  tree_->Branch("c_calorimeter_hit_map_med",&validation_.c_calorimeter_hit_map_med_);
+  tree_->Branch("c_calorimeter_hit_map_high",&validation_.c_calorimeter_hit_map_high_);
+
+  tree_->Branch("c_calorimeter_hit_map_backscatter",&validation_.c_calorimeter_hit_map_backscatter_);
+
+  //
   // For branches that are per calorimeter, specify the corresponding calorimeter map variable  after the .
   // This vector needs to have the same number of entries as the one you are mapping
   // and it specifies the corresponding locations
@@ -95,13 +103,20 @@ void ValidationModule::initialize(const datatools::properties& myConfig,
 
   tree_->Branch ("cm_average_calorimeter_energy.c_calorimeter_hit_map",&validation_.cm_average_calorimeter_energy_);
 
+//changes
+  tree_->Branch("reco.electron_vertex_x",&validation_.electron_vertex_x_); // vector
+  tree_->Branch("reco.electron_vertex_y",&validation_.electron_vertex_y_); // vector
+  tree_->Branch("reco.electron_vertex_z",&validation_.electron_vertex_z_); // vector
+
+  tree_->Branch("reco.track_calo_hits",&validation_.track_calo_hits_);
+
   this->_set_initialized(true);
 }
 //! [ValidationModule::Process]
 dpp::base_module::process_status
 ValidationModule::process(datatools::things& workItem) {
-  
-  
+
+
   // declare internal variables to mimic the ntuple variables, names are same but in camel case
   double totalCalorimeterEnergy=0;
   double energyOverThreshold=0;
@@ -121,10 +136,14 @@ ValidationModule::process(datatools::things& workItem) {
   int positiveTrackCount=0;
   std::vector<int> allTrackHitCounts;
 
+//changes
+  std::vector<double> electronEnergies;
+  std::vector<TVector3> electronVertices;
+
 
   // We need to run this before we start populating vectors. Put all your vectors in this function to clear them
   ResetVars();
-  
+
   // Grab calibrated data bank
   // Calibrated data will only be present in reconstructed files,
   // so wrap in a try block
@@ -134,17 +153,32 @@ ValidationModule::process(datatools::things& workItem) {
   try {
     const snemo::datamodel::calibrated_data& calData = workItem.get<snemo::datamodel::calibrated_data>("CD");
 
-    
+
     if (calData.has_calibrated_calorimeter_hits())
       {
         const snemo::datamodel::calibrated_data::calorimeter_hit_collection_type & calHits=calData.calibrated_calorimeter_hits();
         for (snemo::datamodel::calibrated_data::calorimeter_hit_collection_type::const_iterator   iHit = calHits.begin(); iHit != calHits.end(); ++iHit) {
           const snemo::datamodel::calibrated_calorimeter_hit & calHit = iHit->get();
-          
+
           // Write to the calorimeter map
           validation_.c_calorimeter_hit_map_.push_back(EncodeLocation(calHit));
-          
-          double energy=calHit.get_energy() ;
+          validation_.c_calorimeter_hit_map_backscatter_.push_back(EncodeLocation(calHit));
+
+          double energy=calHit.get_energy();
+
+          if(energy < 0.5){
+              validation_.c_calorimeter_hit_map_low_.push_back(EncodeLocation(calHit));
+              //std::cout << "Low " << energy << std::endl;
+            }
+          if((energy > 0.5) && (energy < 1.5)){
+              validation_.c_calorimeter_hit_map_med_.push_back(EncodeLocation(calHit));
+              //std::cout << "Med " << energy << std::endl;
+            }
+          if(energy > 1.5){
+              validation_.c_calorimeter_hit_map_high_.push_back(EncodeLocation(calHit));
+              //std::cout << "High " << energy << std::endl;
+            }
+
           // Write to the energy vector
           validation_.cm_average_calorimeter_energy_.push_back(energy);
 
@@ -166,7 +200,7 @@ ValidationModule::process(datatools::things& workItem) {
           ++caloHitCount;
         }
       }
-    
+
     timeDelay=latestCaloHit-earliestCaloHit;
 
       // Count all the tracker (Geiger) hits
@@ -220,8 +254,25 @@ ValidationModule::process(datatools::things& workItem) {
     {
       for (uint iParticle=0;iParticle<trackData.get_number_of_particles();++iParticle)
       {
-
         snemo::datamodel::particle_track track=trackData.get_particle(iParticle);
+
+//start of change
+        TrackDetails trackDetails(geometry_manager_, track);
+
+        if (trackDetails.IsElectron())
+        {
+         int pos=InsertAndGetPosition(trackDetails.GetEnergy(), electronEnergies, true);
+         InsertAt(trackDetails.GetFoilmostVertex(),electronVertices,pos);
+
+         const snemo::datamodel::calibrated_data::calorimeter_hit_collection_type & calHits= track.get_associated_calorimeter_hits();
+         for (snemo::datamodel::calibrated_data::calorimeter_hit_collection_type::const_iterator   iHit = calHits.begin(); iHit != calHits.end(); ++iHit) {
+           const snemo::datamodel::calibrated_calorimeter_hit & calHit = iHit->get();
+           //std::cout<< "Calo track hit is: " << EncodeLocation(calHit) <<std::endl;
+           //validation_.c_calorimeter_hit_map_backscatter_.push_back(EncodeLocation(calHit));
+           validation_.track_calo_hits_.push_back(EncodeLocation(calHit));
+         }
+        }
+
         switch (track.get_charge())
         {
             // Track count, positive and negative track count
@@ -273,7 +324,7 @@ ValidationModule::process(datatools::things& workItem) {
             }
           }
         }
-      
+
         // Number of tracker hits
         const snemo::datamodel::tracker_trajectory & the_trajectory = track.get_trajectory();
         const snemo::datamodel::tracker_cluster & the_cluster = the_trajectory.get_cluster();
@@ -318,7 +369,16 @@ ValidationModule::process(datatools::things& workItem) {
   validation_.h_negative_track_count_=negativeTrackCount;
   validation_.h_positive_track_count_=positiveTrackCount;
   validation_.v_all_track_hit_counts_=allTrackHitCounts;
-  
+
+//added branches
+for (int i=0;i<electronVertices.size();i++)
+{
+  validation_.electron_vertex_x_.push_back(electronVertices.at(i).X());
+  validation_.electron_vertex_y_.push_back(electronVertices.at(i).Y());
+  validation_.electron_vertex_z_.push_back(electronVertices.at(i).Z());
+}
+
+
   tree_->Fill();
   // MUST return a status, see ref dpp::processing_status_flags_type
   return dpp::base_module::PROCESS_OK;
@@ -330,8 +390,18 @@ void ValidationModule::ResetVars()
   validation_.v_all_track_hit_counts_.clear();
   validation_.t_cell_hit_count_.clear();
   validation_.c_calorimeter_hit_map_.clear();
+  validation_.c_calorimeter_hit_map_low_.clear();
+  validation_.c_calorimeter_hit_map_med_.clear();
+  validation_.c_calorimeter_hit_map_high_.clear();
+  validation_.c_calorimeter_hit_map_backscatter_.clear();
   validation_.cm_average_calorimeter_energy_.clear();
   validation_.tm_average_drift_radius_.clear();
+
+  validation_.electron_vertex_x_.clear();
+  validation_.electron_vertex_y_.clear();
+  validation_.electron_vertex_z_.clear();
+
+  validation_.track_calo_hits_.clear();
 }
 
 int ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit)
@@ -352,6 +422,41 @@ string ValidationModule::EncodeLocation(const snemo::datamodel::calibrated_calor
   return buffer.str();
 }
 
+//changes
+int ValidationModule::InsertAndGetPosition(double toInsert, std::vector<double> &vec, bool highestFirst)
+{
+  std::vector<double>::iterator it;
+  int len=vec.size();
+
+  it=vec.begin();
+  for (int i=0;i<len;i++)
+  {
+    if ((highestFirst && (toInsert > vec.at(i))) || (!highestFirst && (toInsert < vec.at(i))))
+    {
+      vec.insert(std::next(it,i),toInsert);
+      return i;
+    }
+  }
+  vec.push_back(toInsert);
+  return -1; // It needs adding at the end
+}
+
+template <typename T>
+void ValidationModule::InsertAt(T toInsert, std::vector<T> &vec, int position)
+{
+  if (position>vec.size() || position==-1 )
+  {
+    vec.push_back(toInsert);
+    return;
+  }
+  else
+  {
+    typename std::vector<T>::iterator it=vec.begin();
+    vec.insert(std::next(it,position),toInsert);
+  }
+  return;
+}
+
 
 //! [ValidationModule::reset]
 void ValidationModule::reset() {
@@ -366,4 +471,3 @@ void ValidationModule::reset() {
   this->_set_initialized(false);
 
 }
-

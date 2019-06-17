@@ -30,6 +30,9 @@
 #include "falaise/snemo/datamodels/tracker_clustering_solution.h"
 #include "falaise/snemo/datamodels/particle_track_data.h"
 
+//include module to get primary vertices
+#include "TrackDetails.h"
+
 
 typedef struct ValidationEventStorage{
   // Quantities to histogram (h_)
@@ -49,11 +52,11 @@ typedef struct ValidationEventStorage{
   double h_associated_calorimeter_energy_; // Summed calorimeter energy associated to any track (in MeV)
   double h_associated_energy_over_threshold_; // Threshold is 50 keV
 
-  
+
   // For vector (v_) quantities you can have more than 1 entry per event
   // NOT implemented yet!
   std::vector<int> v_all_track_hit_counts_; // Vector of how many hits for ALL tracks (delayed or not)
-  
+
   // For tracker maps: some values want to be summed over all events (t_), and some to be averaged (tm_)
   // All tm variables will need to be paired with a hit map, so that we can match the vector of values
   // to a vector of locations. This pairing must be defined in the config file.
@@ -64,7 +67,21 @@ typedef struct ValidationEventStorage{
   // All cm variables will need to be paired with a hit map, so that we can match the vector of values
   // to a vector of locations. This pairing must be defined in the config file.
   std::vector<std::string> c_calorimeter_hit_map_;
+
+  //
+  std::vector<std::string> c_calorimeter_hit_map_low_;
+  std::vector<std::string> c_calorimeter_hit_map_med_;
+  std::vector<std::string> c_calorimeter_hit_map_high_;
+  std::vector<std::string> c_calorimeter_hit_map_backscatter_;
+  //
+
   std::vector<double> cm_average_calorimeter_energy_;
+
+//changes
+std::vector<double> electron_vertex_x_;
+std::vector<double> electron_vertex_y_;
+std::vector<double> electron_vertex_z_;
+std::vector<std::string> track_calo_hits_;
 
 }Validationeventstorage;
 
@@ -101,11 +118,13 @@ class ValidationModule : public dpp::base_module {
   int EncodeLocation(const snemo::datamodel::calibrated_tracker_hit & hit);
   std::string EncodeLocation(const snemo::datamodel::calibrated_calorimeter_hit & hit);
 
+//added functions
+  int InsertAndGetPosition(double toInsert, std::vector<double> &vec, bool highestFirst);
+  template <typename T>  void InsertAt(T toInsert, std::vector<T> &vec, int position);
+
   // Macro which automatically creates the interface needed
   // to enable the module to be loaded at runtime
   DPP_MODULE_REGISTRATION_INTERFACE(ValidationModule);
 };
 
 #endif // TESTMODULE_HH
-
-
